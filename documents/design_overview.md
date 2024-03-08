@@ -2,28 +2,28 @@
 
 ## 1. 業務フロー
 
-![alt text](/documents/images/business_flow.jpg)
+![alt text](/documents/images/business_flow.png)
 
 ## 2. 画面遷移図
 
-![alt text](/documents/images/screen_transition.jpg)
+![alt text](/documents/images/screen_transition.png)
 
 ## 3. ワイヤーフレーム
 
-![alt text](/documents/images/wireframe_1.jpg)
-![alt text](/documents/images/wireframe_2.jpg)
-![alt text](/documents/images/wireframe_3.jpg)
-![alt text](/documents/images/wireframe_4.jpg)
-![alt text](/documents/images/wireframe_5.jpg)
-![alt text](/documents/images/wireframe_6.jpg)
+![alt text](/documents/images/wireframe_1.png)
+![alt text](/documents/images/wireframe_2.png)
+![alt text](/documents/images/wireframe_3.png)
+![alt text](/documents/images/wireframe_4.png)
+![alt text](/documents/images/wireframe_5.png)
+![alt text](/documents/images/wireframe_6.png)
 
 ## 4. テーブル定義書
 
-![alt text](/documents/images/table_definition.jpg)
+![alt text](/documents/images/table_definition.png)
 
 ### ER 図
 
-![alt text](/documents/images/entity_relationship.jpg)
+![alt text](/documents/images/entity_relationship.png)
 
 ## 5. システム構成図
 
