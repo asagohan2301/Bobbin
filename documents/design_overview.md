@@ -27,11 +27,14 @@
 
 ## 5. システム構成図
 
-※ インフラ選定中のため未作成です。
+![alt text](/documents/images/system_configuration.png)
+
+### 仕様技術
 
 フロントエンド：Next.js / Tailwind CSS  
 バックエンド：Ruby on Rails  
-データベース：SQLite  
+Web サーバ / アプリケーションサーバ：NGINX + Puma  
+データベース：MySQL  
 開発環境：Docker Compose  
-インフラ：選定中  
+インフラ：AWS  
 ソース管理：Git / GitHub
