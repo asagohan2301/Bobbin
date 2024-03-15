@@ -1,0 +1,79 @@
+# --- for bobbin_api ---
+
+# Ignore bundler config.
+bobbin_api/.bundle
+
+# Ignore the specific database config file.
+bobbin_api/config/database.yml
+
+# Ignore all logfiles and tempfiles.
+bobbin_api/log/*.log
+bobbin_api/tmp
+
+# Ignore other unneeded files.
+bobbin_api/doc/
+bobbin_api/*.swp
+bobbin_api/*~
+bobbin_api/.project
+bobbin_api/.DS_Store
+bobbin_api/.idea
+bobbin_api/.secret
+
+# Ignore bundler gems.
+bobbin_api/vendor/bundle
+
+# Ignore application's specific configuration file
+bobbin_api/config/credentials.yml.enc
+bobbin_api/config/master.key
+
+# Ignore files related to IDE
+bobbin_api/.vscode
+bobbin_api/.idea/
+bobbin_api/.rubymine*
+bobbin_api/.ruby-version
+bobbin_api/.ruby-gemset
+
+# Ignore node modules
+bobbin_api/node_modules
+
+# Ignore precompiled assets for production environment
+bobbin_api/public/assets
+
+# --- for bobbin_frontend ---
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+bobbin_frontend/node_modules
+bobbin_frontend/.pnp
+bobbin_frontend/.pnp.js
+bobbin_frontend/.yarn/install-state.gz
+
+# testing
+bobbin_frontend/coverage
+
+# next.js
+bobbin_frontend/.next/
+bobbin_frontend/out/
+
+# production
+bobbin_frontend/build
+
+# misc
+bobbin_frontend/.DS_Store
+bobbin_frontend/*.pem
+
+# debug
+bobbin_frontend/npm-debug.log*
+bobbin_frontend/yarn-debug.log*
+bobbin_frontend/yarn-error.log*
+
+# local env files
+bobbin_frontend/.env*.local
+
+# vercel
+bobbin_frontend/.vercel
+
+# typescript
+bobbin_frontend/*.tsbuildinfo
+bobbin_frontend/next-env.d.ts
