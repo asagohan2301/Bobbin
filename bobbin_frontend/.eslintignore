@@ -11,7 +11,10 @@ yarn.lock
 pnpm-lock.yaml
 vite.config.ts
 next.config.js
+next.config.mjs
 tsconfig.json
 src/env.d.ts
 *.cjs
 *.mjs
+postcss.config.js
+tailwind.config.ts

@@ -10,3 +10,6 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 next.config.js
+next.config.mjs
+postcss.config.js
+tailwind.config.ts
