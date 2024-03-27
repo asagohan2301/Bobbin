@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  group: one
+  search_keyword: one
+  target_column: MyString
+  target_value: MyString
+
+two:
+  group: two
+  search_keyword: two
+  target_column: MyString
+  target_value: MyString
