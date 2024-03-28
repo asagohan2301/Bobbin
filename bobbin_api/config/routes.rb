@@ -3,5 +3,9 @@ Rails.application.routes.draw do
 
   scope '/api' do
     resources :products
+    resources :product_types, path: 'product-types'
+    resources :customers
+    resources :users
+    resources :progresses
   end
 end
