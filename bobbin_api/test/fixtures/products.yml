@@ -1,0 +1,21 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  group: one
+  product_type: one
+  customer: one
+  product_number: MyString
+  product_name: MyString
+  user: one
+  progress: one
+  document_path: MyString
+
+two:
+  group: two
+  product_type: two
+  customer: two
+  product_number: MyString
+  product_name: MyString
+  user: two
+  progress: two
+  document_path: MyString
