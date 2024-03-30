@@ -4,8 +4,19 @@ class ProductsController < ApplicationController
   def index
   end
 
+  def show
+    product = Product.find(params[:id])
+    if product.images.attached?
+      image_urls = product.images.map { |image| url_for(image) }
+      render json: { image_urls: }
+    else
+      render json: { errors: 'There are no files' }
+    end
+  end
+
   def create
     product = Product.new(product_params)
+    product.images.attach(params[:images])
     if product.save
       render json: { product: format_product_response(product) }, status: :created
     else
@@ -21,6 +32,7 @@ class ProductsController < ApplicationController
 
   def format_product_response(product)
     {
+      id: product.id,
       group: product.group.group_name,
       product_type: product.product_type.product_type,
       customer: product.customer.customer_name,
@@ -28,21 +40,20 @@ class ProductsController < ApplicationController
       product_name: product.product_name,
       user: product.user.user_name,
       progress: product.progress.progress_status
-      # ,
       # document_path: product.document_path,
     }
   end
 
   def product_params
-    params.require(:product).permit(
+    params.permit(
       :group_id,
       :product_type_id,
       :customer_id,
       :product_number,
       :product_name,
       :user_id,
-      :progress_id,
-      :document_path
+      :progress_id
+      # :document_path
     )
   end
 end

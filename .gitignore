@@ -39,6 +39,8 @@ bobbin_api/node_modules
 # Ignore precompiled assets for production environment
 bobbin_api/public/assets
 
+bobbin_api/config/credentials/
+
 # --- for bobbin_frontend ---
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
