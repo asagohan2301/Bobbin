@@ -21,28 +21,34 @@ export default function New() {
   }
 
   const [productTypes, setProdoctTypes] = useState<ProductType[]>([])
-  const [productTypeId, setProductTypeId] = useState<number>()
+  const [productTypeId, setProductTypeId] = useState<string>('')
   const [customers, setCustomers] = useState<Customer[]>([])
-  const [customerId, setCustomerId] = useState<number>()
+  const [customerId, setCustomerId] = useState<string>('')
   const [productNumber, setProductNumber] = useState<string>('')
   const [productName, setProductName] = useState<string>('')
   const [users, setUsers] = useState<User[]>([])
-  const [userId, setUserId] = useState<number>()
+  const [userId, setUserId] = useState<string>('')
   const [progresses, setProgresses] = useState<Progress[]>([])
-  const [progressId, setProgressId] = useState<number>()
+  const [progressId, setProgressId] = useState<string>('')
+
+  const [images, setImages] = useState<File[]>([])
 
   useEffect(() => {
     getSelectOptions('/api/get-product-types').then((resData) => {
       setProdoctTypes(resData.product_types)
+      setProductTypeId(resData.product_types[0].id)
     })
     getSelectOptions('/api/get-customers').then((resData) => {
       setCustomers(resData.customers)
+      setCustomerId(resData.customers[0].id)
     })
     getSelectOptions('/api/get-users').then((resData) => {
       setUsers(resData.users)
+      setUserId(resData.users[0].id)
     })
     getSelectOptions('/api/get-progresses').then((resData) => {
       setProgresses(resData.progresses)
+      setProgressId(resData.progresses[0].id)
     })
   }, [])
 
@@ -52,27 +58,35 @@ export default function New() {
     return resData
   }
 
-  const test = () => {
-    console.dir(productTypes)
-  }
+  // テスト用
+  const test = () => {}
 
+  // postProduct
   const postProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const reqData = {
-      product: {
-        group_id: 1,
-        product_type_id: productTypeId,
-        customer_id: customerId,
-        product_number: productNumber,
-        product_name: productName,
-        user_id: userId,
-        progress_id: progressId,
-        // document_path: 'test',
-      },
+
+    const product = new FormData()
+
+    product.append('group_id', '1')
+    product.append('product_type_id', productTypeId)
+    product.append('customer_id', customerId)
+    product.append('product_number', productNumber)
+    product.append('product_name', productName)
+    product.append('user_id', userId)
+    product.append('progress_id', progressId)
+
+    images.forEach((image) => {
+      product.append(`images[]`, image)
+    })
+
+    // 確認用
+    for (const [key, value] of product.entries()) {
+      console.log(`${key}: ${value}`)
     }
-    const res = await fetch('/api/post-product', {
+
+    const res = await fetch('http://localhost:3001/api/products', {
       method: 'POST',
-      body: JSON.stringify(reqData),
+      body: product,
     })
     const resData = await res.json()
     console.log(resData)
@@ -87,7 +101,7 @@ export default function New() {
           <select
             id="productType"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setProductTypeId(Number(e.target.value))
+              setProductTypeId(e.target.value)
             }}
           >
             {productTypes.map((productType, index) => {
@@ -104,7 +118,7 @@ export default function New() {
           <select
             id="customer"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setCustomerId(Number(e.target.value))
+              setCustomerId(e.target.value)
             }}
           >
             {customers.map((customer, index) => {
@@ -141,7 +155,7 @@ export default function New() {
           <select
             id="user"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setUserId(Number(e.target.value))
+              setUserId(e.target.value)
             }}
           >
             {users.map((user, index) => {
@@ -158,7 +172,7 @@ export default function New() {
           <select
             id="progress"
             onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setProgressId(Number(e.target.value))
+              setProgressId(e.target.value)
             }}
           >
             {progresses.map((progress, index) => {
@@ -170,6 +184,15 @@ export default function New() {
             })}
           </select>
         </div>
+        <input
+          type="file"
+          multiple
+          onChange={(e) => {
+            if (e.target.files) {
+              setImages(Array.from(e.target.files))
+            }
+          }}
+        />
         <button>登録</button>
       </form>
       <button onClick={test}>test用</button>
