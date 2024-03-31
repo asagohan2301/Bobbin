@@ -1,3 +1,4 @@
+// 処理をフロントに移したので使用していない
 export async function POST(req: Request) {
   const apiEndpoint = process.env.API_ENDPOINT
   const reqData = await req.json()

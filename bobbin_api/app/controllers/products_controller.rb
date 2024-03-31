@@ -6,11 +6,10 @@ class ProductsController < ApplicationController
 
   def show
     product = Product.find(params[:id])
-    if product.images.attached?
-      image_urls = product.images.map { |image| url_for(image) }
-      render json: { image_urls: }
+    if product
+      render json: { product: format_product_response(product) }
     else
-      render json: { errors: 'There are no files' }
+      render json: { errors: ['Article not found'] }
     end
   end
 
@@ -18,7 +17,7 @@ class ProductsController < ApplicationController
     product = Product.new(product_params)
     product.images.attach(params[:images])
     if product.save
-      render json: { product: format_product_response(product) }, status: :created
+      render json: { id: product.id }, status: :created
     else
       render json: { errors: product.errors.full_messages }, status: :unprocessable_entity
     end
@@ -27,10 +26,11 @@ class ProductsController < ApplicationController
   private
 
   def handle_unique_constraint_violation
-    render json: { errors: 'Unique constraint violation' }, status: :unprocessable_entity
+    render json: { errors: ['Unique constraint violation'] }, status: :unprocessable_entity
   end
 
   def format_product_response(product)
+    image_urls = product.images.map { |image| url_for(image) } if product.images.attached?
     {
       id: product.id,
       group: product.group.group_name,
@@ -39,7 +39,8 @@ class ProductsController < ApplicationController
       product_number: product.product_number,
       product_name: product.product_name,
       user: product.user.user_name,
-      progress: product.progress.progress_status
+      progress: product.progress.progress_status,
+      image_urls:
       # document_path: product.document_path,
     }
   end

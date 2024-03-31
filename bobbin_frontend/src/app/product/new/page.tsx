@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function New() {
@@ -30,8 +31,11 @@ export default function New() {
   const [userId, setUserId] = useState<string>('')
   const [progresses, setProgresses] = useState<Progress[]>([])
   const [progressId, setProgressId] = useState<string>('')
-
   const [images, setImages] = useState<File[]>([])
+
+  const router = useRouter()
+
+  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
   useEffect(() => {
     getSelectOptions('/api/get-product-types').then((resData) => {
@@ -65,31 +69,31 @@ export default function New() {
   const postProduct = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const product = new FormData()
+    const productFormData = new FormData()
 
-    product.append('group_id', '1')
-    product.append('product_type_id', productTypeId)
-    product.append('customer_id', customerId)
-    product.append('product_number', productNumber)
-    product.append('product_name', productName)
-    product.append('user_id', userId)
-    product.append('progress_id', progressId)
+    productFormData.append('group_id', '1')
+    productFormData.append('product_type_id', productTypeId)
+    productFormData.append('customer_id', customerId)
+    productFormData.append('product_number', productNumber)
+    productFormData.append('product_name', productName)
+    productFormData.append('user_id', userId)
+    productFormData.append('progress_id', progressId)
 
     images.forEach((image) => {
-      product.append(`images[]`, image)
+      productFormData.append(`images[]`, image)
     })
 
     // 確認用
-    for (const [key, value] of product.entries()) {
-      console.log(`${key}: ${value}`)
-    }
+    // for (const [key, value] of product.entries()) {
+    //   console.log(`${key}: ${value}`)
+    // }
 
-    const res = await fetch('http://localhost:3001/api/products', {
+    const res = await fetch(`${apiEndpoint}/api/products`, {
       method: 'POST',
-      body: product,
+      body: productFormData,
     })
-    const resData = await res.json()
-    console.log(resData)
+    const { id } = await res.json()
+    router.push(`/product/${id}`)
   }
 
   return (
