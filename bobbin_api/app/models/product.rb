@@ -4,5 +4,5 @@ class Product < ApplicationRecord
   belongs_to :customer
   belongs_to :user
   belongs_to :progress
-  has_many_attached :images
+  has_many_attached :files
 end
