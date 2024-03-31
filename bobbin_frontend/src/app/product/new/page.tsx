@@ -31,7 +31,7 @@ export default function New() {
   const [userId, setUserId] = useState<string>('')
   const [progresses, setProgresses] = useState<Progress[]>([])
   const [progressId, setProgressId] = useState<string>('')
-  const [images, setImages] = useState<File[]>([])
+  const [files, setFiles] = useState<File[]>([])
 
   const router = useRouter()
 
@@ -79,8 +79,8 @@ export default function New() {
     productFormData.append('user_id', userId)
     productFormData.append('progress_id', progressId)
 
-    images.forEach((image) => {
-      productFormData.append(`images[]`, image)
+    files.forEach((file) => {
+      productFormData.append(`files[]`, file)
     })
 
     // 確認用
@@ -193,7 +193,7 @@ export default function New() {
           multiple
           onChange={(e) => {
             if (e.target.files) {
-              setImages(Array.from(e.target.files))
+              setFiles(Array.from(e.target.files))
             }
           }}
         />

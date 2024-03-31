@@ -15,7 +15,7 @@ class ProductsController < ApplicationController
 
   def create
     product = Product.new(product_params)
-    product.images.attach(params[:images])
+    product.files.attach(params[:files])
     if product.save
       render json: { id: product.id }, status: :created
     else
@@ -30,7 +30,7 @@ class ProductsController < ApplicationController
   end
 
   def format_product_response(product)
-    image_urls = product.images.map { |image| url_for(image) } if product.images.attached?
+    file_urls = product.files.map { |file| url_for(file) } if product.files.attached?
     {
       id: product.id,
       group: product.group.group_name,
@@ -40,7 +40,7 @@ class ProductsController < ApplicationController
       product_name: product.product_name,
       user: product.user.user_name,
       progress: product.progress.progress_status,
-      image_urls:
+      file_urls:
       # document_path: product.document_path,
     }
   end

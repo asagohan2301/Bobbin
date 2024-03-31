@@ -13,7 +13,7 @@ export default function Product({ params }: { params: Params }) {
   const [productName, setProductName] = useState<string>('')
   const [user, setUser] = useState<string>('')
   const [progress, setProgress] = useState<string>('')
-  const [imageUrls, setImageUrls] = useState<string[]>([])
+  const [fileUrls, setFileUrls] = useState<string[]>([])
 
   const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
@@ -29,7 +29,7 @@ export default function Product({ params }: { params: Params }) {
         setProductName(product.product_name)
         setUser(product.user)
         setProgress(product.progress)
-        setImageUrls(product.image_urls)
+        setFileUrls(product.file_urls)
       })
   }, [])
 
@@ -42,9 +42,9 @@ export default function Product({ params }: { params: Params }) {
       <h2>{productName}</h2>
       <h2>{user}</h2>
       <h2>状態:{progress}</h2>
-      {imageUrls &&
-        imageUrls.map((imageUrl, index) => {
-          return <img src={imageUrl} alt="" key={index} />
+      {fileUrls &&
+        fileUrls.map((fileUrl, index) => {
+          return <img src={fileUrl} alt="" key={index} />
         })}
     </div>
   )
