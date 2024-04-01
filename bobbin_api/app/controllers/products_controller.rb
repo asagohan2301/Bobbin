@@ -7,9 +7,9 @@ class ProductsController < ApplicationController
   def show
     product = Product.find(params[:id])
     if product
-      render json: { product: format_product_response(product) }
+      render json: { product: format_product_response(product) }, status: :ok
     else
-      render json: { errors: ['Article not found'] }
+      render json: { errors: ['Product not found'] }, status: :not_found
     end
   end
 
@@ -20,6 +20,15 @@ class ProductsController < ApplicationController
       render json: { id: product.id }, status: :created
     else
       render json: { errors: product.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    product = Product.find(params[:id])
+    if product.destroy
+      head :no_content
+    else
+      render json: { errors: ['Product not found'] }, status: :not_found
     end
   end
 
