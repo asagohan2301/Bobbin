@@ -19,5 +19,8 @@ COPY . .
 # 本番環境用のビルドステージ
 FROM base as production
 RUN bundle install --without development test
+COPY entrypoint.sh /app/scripts/
+RUN chmod +x /app/scripts/entrypoint.sh
+ENTRYPOINT ["/app/scripts/entrypoint.sh"]
 COPY . .
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
