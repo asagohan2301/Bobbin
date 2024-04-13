@@ -1,8 +1,6 @@
-# FROM ruby:3.2.3
-FROM ruby:3.2.3-slim
-
+# ベースステージ
+FROM ruby:3.2.3-slim as base
 WORKDIR /app
-
 RUN apt-get update && apt-get install -y \
     build-essential \
     libvips \
@@ -10,15 +8,16 @@ RUN apt-get update && apt-get install -y \
     poppler-utils \
     default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
-
-ENV RAILS_ENV="development"
-
 COPY Gemfile Gemfile.lock ./
-
-RUN bundle install
-
-COPY . .
-
 EXPOSE 3001
 
-CMD ["rails", "server", "-b", "0.0.0.0"]
+# 開発環境用のビルドステージ
+FROM base as development
+RUN bundle install
+COPY . .
+
+# 本番環境用のビルドステージ
+FROM base as production
+RUN bundle install --without development test
+COPY . .
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

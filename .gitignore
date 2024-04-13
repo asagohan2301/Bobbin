@@ -4,7 +4,7 @@
 bobbin_api/.bundle
 
 # Ignore the specific database config file.
-bobbin_api/config/database.yml
+# bobbin_api/config/database.yml
 
 # Ignore all logfiles and tempfiles.
 bobbin_api/log/*.log
@@ -40,6 +40,8 @@ bobbin_api/node_modules
 bobbin_api/public/assets
 
 bobbin_api/config/credentials/
+
+bobbin_api/.env
 
 # --- for bobbin_frontend ---
 
