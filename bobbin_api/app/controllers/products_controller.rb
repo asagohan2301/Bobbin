@@ -2,6 +2,9 @@ class ProductsController < ApplicationController
   rescue_from ActiveRecord::RecordNotUnique, with: :handle_unique_constraint_violation
 
   def index
+    products = Product.all
+    formatted_products = products.map { |product| format_product_response(product) }
+    render json: { products: formatted_products }, status: :ok
   end
 
   def show
@@ -42,15 +45,14 @@ class ProductsController < ApplicationController
     file_urls = product.files.map { |file| url_for(file) } if product.files.attached?
     {
       id: product.id,
-      group: product.group.group_name,
+      group_name: product.group.group_name,
       product_type: product.product_type.product_type,
-      customer: product.customer.customer_name,
+      customer_name: product.customer.customer_name,
       product_number: product.product_number,
       product_name: product.product_name,
-      user: product.user.user_name,
-      progress: product.progress.progress_status,
+      user_name: product.user.user_name,
+      progress_status: product.progress.progress_status,
       file_urls:
-      # document_path: product.document_path,
     }
   end
 
@@ -63,7 +65,6 @@ class ProductsController < ApplicationController
       :product_name,
       :user_id,
       :progress_id
-      # :document_path
     )
   end
 end
