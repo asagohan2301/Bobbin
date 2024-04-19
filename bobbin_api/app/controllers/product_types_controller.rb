@@ -7,6 +7,6 @@ class ProductTypesController < ApplicationController
         product_type: product_type.product_type
       }
     end
-    render json: { product_types: formatted_product_types }
+    render json: { product_types: formatted_product_types }, status: :ok
   end
 end

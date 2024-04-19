@@ -1,4 +1,6 @@
 class ProductsController < ApplicationController
+  before_action :set_product, only: [:show, :destroy]
+  rescue_from ActiveRecord::RecordNotFound, with: :product_not_found
   rescue_from ActiveRecord::RecordNotUnique, with: :handle_unique_constraint_violation
 
   def index
@@ -8,37 +10,33 @@ class ProductsController < ApplicationController
   end
 
   def show
-    product = Product.find(params[:id])
-    if product
-      render json: { product: format_product_response(product) }, status: :ok
-    else
-      render json: { errors: ['Product not found'] }, status: :not_found
-    end
+    render json: { product: format_product_response(@product) }, status: :ok
   end
 
   def create
     product = Product.new(product_params)
-    product.files.attach(params[:files])
-    if product.save
-      render json: { id: product.id }, status: :created
-    else
-      render json: { errors: product.errors.full_messages }, status: :unprocessable_entity
+
+    ActiveRecord::Base.transaction do
+      product.save!
+      product.files.attach(params[:files]) if params[:files].present?
     end
+
+    render json: { id: product.id }, status: :created
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  rescue StandardError => e
+    render json: { errors: [e.message] }, status: :unprocessable_entity
   end
 
   def destroy
-    product = Product.find(params[:id])
-    if product.destroy
-      head :no_content
-    else
-      render json: { errors: ['Product not found'] }, status: :not_found
-    end
+    @product.destroy
+    head :no_content
   end
 
   private
 
-  def handle_unique_constraint_violation
-    render json: { errors: ['Unique constraint violation'] }, status: :unprocessable_entity
+  def set_product
+    @product = Product.find(params[:id])
   end
 
   def format_product_response(product)
@@ -66,5 +64,17 @@ class ProductsController < ApplicationController
       :user_id,
       :progress_id
     )
+  end
+
+  # エラー処理
+
+  # show, edit, destroy で該当製品が見つからない
+  def product_not_found
+    render json: { errors: ['製品が見つかりませんでした'] }, status: :not_found
+  end
+
+  # ユニークキー制約違反 (データベースレベル)
+  def handle_unique_constraint_violation
+    render json: { errors: ['同じ品番または品名がすでに存在しています'] }, status: :unprocessable_entity
   end
 end
