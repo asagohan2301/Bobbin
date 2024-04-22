@@ -73,10 +73,17 @@ export default function New() {
       }
     } catch (error) {
       setErrorMessages((currentMessages) => {
-        const newMessage = error.message
-        return currentMessages.includes(newMessage)
-          ? currentMessages
-          : [...currentMessages, newMessage]
+        if (error instanceof Error) {
+          const newMessage = error.message
+          return currentMessages.includes(newMessage)
+            ? currentMessages
+            : [...currentMessages, newMessage]
+        } else {
+          const genericMessage = '想定外のエラーが発生しました'
+          return currentMessages.includes(genericMessage)
+            ? currentMessages
+            : [...currentMessages, genericMessage]
+        }
       })
     }
   }
