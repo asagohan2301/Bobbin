@@ -7,6 +7,6 @@ class UsersController < ApplicationController
         user_name: user.user_name
       }
     end
-    render json: { users: formatted_users }
+    render json: { users: formatted_users }, status: :ok
   end
 end

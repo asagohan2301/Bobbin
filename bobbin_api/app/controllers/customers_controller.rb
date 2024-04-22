@@ -7,6 +7,6 @@ class CustomersController < ApplicationController
         customer_name: customer.customer_name
       }
     end
-    render json: { customers: formatted_customers }
+    render json: { customers: formatted_customers }, status: :ok
   end
 end

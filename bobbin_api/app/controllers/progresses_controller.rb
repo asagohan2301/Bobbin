@@ -7,6 +7,6 @@ class ProgressesController < ApplicationController
         progress_status: progress.progress_status
       }
     end
-    render json: { progresses: formatted_progresses }
+    render json: { progresses: formatted_progresses }, status: :ok
   end
 end

@@ -1,113 +1,155 @@
 'use client'
 
+import { getSelectOptions, postProduct } from '@/services/productService'
+import type {
+  CustomerApiResponse,
+  CustomersApiResponse,
+  ProductTypeApiResponse,
+  ProductTypesApiResponse,
+  ProgressApiResponse,
+  ProgressesApiResponse,
+  UserApiResponse,
+  UsersApiResponse,
+} from '@/types/productTypes'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 export default function New() {
-  type ProductType = {
-    id: number
-    product_type: string
-  }
-  type Customer = {
-    id: number
-    customer_name: string
-  }
-  type User = {
-    id: number
-    user_name: string
-  }
-  type Progress = {
-    id: number
-    progress_status: string
-  }
-
-  const [productTypes, setProdoctTypes] = useState<ProductType[]>([])
-  const [productTypeId, setProductTypeId] = useState<string>('')
-  const [customers, setCustomers] = useState<Customer[]>([])
-  const [customerId, setCustomerId] = useState<string>('')
+  const groupId = 1
+  const [productTypes, setProductTypes] = useState<ProductTypeApiResponse[]>([])
+  const [productTypeId, setProductTypeId] = useState<number | null>(null)
+  const [customers, setCustomers] = useState<CustomerApiResponse[]>([])
+  const [customerId, setCustomerId] = useState<number | null>(null)
   const [productNumber, setProductNumber] = useState<string>('')
   const [productName, setProductName] = useState<string>('')
-  const [users, setUsers] = useState<User[]>([])
-  const [userId, setUserId] = useState<string>('')
-  const [progresses, setProgresses] = useState<Progress[]>([])
-  const [progressId, setProgressId] = useState<string>('')
+  const [users, setUsers] = useState<UserApiResponse[]>([])
+  const [userId, setUserId] = useState<number | null>(null)
+  const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
+  const [progressId, setProgressId] = useState<number | null>(null)
   const [files, setFiles] = useState<File[]>([])
+  const [errorMessages, setErrorMessages] = useState<string[]>([])
 
   const router = useRouter()
 
-  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
-
   useEffect(() => {
-    getSelectOptions('/api/get-product-types').then((resData) => {
-      setProdoctTypes(resData.product_types)
-      setProductTypeId(resData.product_types[0].id)
-    })
-    getSelectOptions('/api/get-customers').then((resData) => {
-      setCustomers(resData.customers)
-      setCustomerId(resData.customers[0].id)
-    })
-    getSelectOptions('/api/get-users').then((resData) => {
-      setUsers(resData.users)
-      setUserId(resData.users[0].id)
-    })
-    getSelectOptions('/api/get-progresses').then((resData) => {
-      setProgresses(resData.progresses)
-      setProgressId(resData.progresses[0].id)
-    })
+    handleGetSelectOptions()
   }, [])
 
-  const getSelectOptions = async (endpoint: string) => {
-    const res = await fetch(endpoint)
-    const resData = await res.json()
-    return resData
+  const handleGetSelectOptions = async () => {
+    try {
+      const productTypesData =
+        await getSelectOptions<ProductTypesApiResponse>('product-types')
+      if (productTypesData.product_types.length > 0) {
+        setProductTypes(productTypesData.product_types)
+        // setProductTypeId(productTypesData.product_types[0].id)
+      } else {
+        throw new Error('種別のデータがありません')
+      }
+
+      const customersData =
+        await getSelectOptions<CustomersApiResponse>('customers')
+      if (customersData.customers.length > 0) {
+        setCustomers(customersData.customers)
+        // setCustomerId(customersData.customers[0].id)
+      } else {
+        throw new Error('顧客のデータがありません')
+      }
+
+      const usersData = await getSelectOptions<UsersApiResponse>('users')
+      if (usersData.users.length > 0) {
+        setUsers(usersData.users)
+        // setUserId(usersData.users[0].id)
+      } else {
+        throw new Error('ユーザーのデータがありません')
+      }
+
+      const progressesData =
+        await getSelectOptions<ProgressesApiResponse>('progresses')
+      if (progressesData.progresses.length > 0) {
+        setProgresses(progressesData.progresses)
+        // setProgressId(progressesData.progresses[0].id)
+      } else {
+        throw new Error('進捗のデータがありません')
+      }
+    } catch (error) {
+      setErrorMessages((currentMessages) => {
+        if (error instanceof Error) {
+          const newMessage = error.message
+          return currentMessages.includes(newMessage)
+            ? currentMessages
+            : [...currentMessages, newMessage]
+        } else {
+          const genericMessage = '想定外のエラーが発生しました'
+          return currentMessages.includes(genericMessage)
+            ? currentMessages
+            : [...currentMessages, genericMessage]
+        }
+      })
+    }
   }
 
-  // テスト用
-  const test = () => {}
+  const validateProductForm = () => {
+    const messages = []
+    if (productTypeId === null) {
+      messages.push('種別を選択してください')
+    }
+    if (productTypeId === 2 && customerId === null) {
+      messages.push('種別がOEMですが顧客名が選択されていません')
+    }
+    if (productNumber === '') {
+      messages.push('品番を入力してください')
+    }
+    if (productName === '') {
+      messages.push('品名を入力してください')
+    }
+    if (messages.length > 0) {
+      setErrorMessages(messages)
+      return false
+    } else {
+      return true
+    }
+  }
 
-  // postProduct
-  const postProduct = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-
-    const productFormData = new FormData()
-
-    productFormData.append('group_id', '1')
-    productFormData.append('product_type_id', productTypeId)
-    productFormData.append('customer_id', customerId)
-    productFormData.append('product_number', productNumber)
-    productFormData.append('product_name', productName)
-    productFormData.append('user_id', userId)
-    productFormData.append('progress_id', progressId)
-
-    files.forEach((file) => {
-      productFormData.append(`files[]`, file)
-    })
-
-    // 確認用
-    // for (const [key, value] of product.entries()) {
-    //   console.log(`${key}: ${value}`)
-    // }
-
-    const res = await fetch(`${apiEndpoint}/api/products`, {
-      method: 'POST',
-      body: productFormData,
-    })
-    const { id } = await res.json()
-    router.push(`/product/${id}`)
+  const handlePostProduct = () => {
+    if (!validateProductForm()) {
+      return
+    }
+    postProduct(
+      groupId,
+      productTypeId!,
+      customerId,
+      productNumber,
+      productName,
+      userId,
+      progressId,
+      files,
+    )
+      .then((id) => {
+        router.push(`/product/${id}`)
+      })
+      .catch((error) => {
+        setErrorMessages(error.message.split(','))
+      })
   }
 
   return (
     <div>
-      <h1 className="text-[20px]">製品登録</h1>
-      <form onSubmit={postProduct}>
+      <h1>製品登録</h1>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          handlePostProduct()
+        }}
+      >
         <div>
           <label htmlFor="productType">種別</label>
           <select
             id="productType"
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setProductTypeId(e.target.value)
+            onChange={(e) => {
+              setProductTypeId(parseInt(e.target.value))
             }}
           >
+            <option>選択してください</option>
             {productTypes.map((productType, index) => {
               return (
                 <option value={productType.id} key={index}>
@@ -121,10 +163,12 @@ export default function New() {
           <label htmlFor="customer">お客様名</label>
           <select
             id="customer"
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setCustomerId(e.target.value)
+            onChange={(e) => {
+              setCustomerId(parseInt(e.target.value))
             }}
+            disabled={productTypeId === 1}
           >
+            <option>選択してください</option>
             {customers.map((customer, index) => {
               return (
                 <option value={customer.id} key={index}>
@@ -139,7 +183,7 @@ export default function New() {
           <input
             type="text"
             id="productNumber"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={(e) => {
               setProductNumber(e.target.value)
             }}
           />
@@ -149,7 +193,7 @@ export default function New() {
           <input
             type="text"
             id="productName"
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+            onChange={(e) => {
               setProductName(e.target.value)
             }}
           />
@@ -158,10 +202,11 @@ export default function New() {
           <label htmlFor="user">担当者</label>
           <select
             id="user"
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setUserId(e.target.value)
+            onChange={(e) => {
+              setUserId(parseInt(e.target.value))
             }}
           >
+            <option>未定</option>
             {users.map((user, index) => {
               return (
                 <option value={user.id} key={index}>
@@ -175,10 +220,11 @@ export default function New() {
           <label htmlFor="progress">進捗</label>
           <select
             id="progress"
-            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-              setProgressId(e.target.value)
+            onChange={(e) => {
+              setProgressId(parseInt(e.target.value))
             }}
           >
+            <option>未定</option>
             {progresses.map((progress, index) => {
               return (
                 <option value={progress.id} key={index}>
@@ -199,7 +245,13 @@ export default function New() {
         />
         <button>登録</button>
       </form>
-      <button onClick={test}>test用</button>
+      {errorMessages.length > 0 && (
+        <ul>
+          {errorMessages.map((errorMessage, index) => (
+            <li key={index}>{errorMessage}</li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }
