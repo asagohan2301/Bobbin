@@ -116,7 +116,7 @@ export default function New() {
     }
     postProduct(
       groupId,
-      productTypeId,
+      productTypeId!,
       customerId,
       productNumber,
       productName,
