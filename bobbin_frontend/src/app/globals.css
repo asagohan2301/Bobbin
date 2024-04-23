@@ -2,6 +2,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Firefox */
+/* .custom-scrollbar {
+  scrollbar-width: thin;
+} */
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #ccc;
+}
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
