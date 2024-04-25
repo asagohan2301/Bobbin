@@ -1,5 +1,5 @@
 class ProductsController < ApplicationController
-  before_action :set_product, only: [:show, :destroy]
+  before_action :set_product, only: [:show, :update, :destroy]
   rescue_from ActiveRecord::RecordNotFound, with: :product_not_found
   rescue_from ActiveRecord::RecordNotUnique, with: :handle_unique_constraint_violation
 
@@ -28,6 +28,18 @@ class ProductsController < ApplicationController
     render json: { errors: [e.message] }, status: :unprocessable_entity
   end
 
+  def update
+    ActiveRecord::Base.transaction do
+      @product.update!(product_params)
+    end
+
+    render json: { product: format_product_response(@product) }, status: :ok
+  rescue ActiveRecord::RecordInvalid => e
+    render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
+  rescue StandardError => e
+    render json: { errors: [e.message] }, status: :unprocessable_entity
+  end
+
   def destroy
     @product.destroy
     head :no_content
@@ -49,6 +61,7 @@ class ProductsController < ApplicationController
       product_number: product.product_number,
       product_name: product.product_name,
       user_name: product.user.user_name,
+      progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
       file_urls:
     }
@@ -56,6 +69,7 @@ class ProductsController < ApplicationController
 
   def product_params
     params.permit(
+      :id,
       :group_id,
       :product_type_id,
       :customer_id,
@@ -68,7 +82,7 @@ class ProductsController < ApplicationController
 
   # エラー処理
 
-  # show, edit, destroy で該当製品が見つからない
+  # show, update, destroy で該当製品が見つからない
   def product_not_found
     render json: { errors: ['製品が見つかりませんでした'] }, status: :not_found
   end
