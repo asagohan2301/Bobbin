@@ -93,3 +93,21 @@ export const getSelectOptions = async <T>(resource: string): Promise<T> => {
     throw new Error('データの取得に失敗しました')
   }
 }
+
+export const updateProgressStatus = async (
+  productId: number,
+  progressId: number,
+): Promise<ProductApiResponse> => {
+  const productFormData = new FormData()
+  productFormData.append('progress_id', progressId.toString())
+  const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
+    method: 'PUT',
+    body: productFormData,
+  })
+  if (res.ok) {
+    const data: ProductApiResponse = await res.json()
+    return data
+  } else {
+    throw new Error('進捗の更新に失敗しました')
+  }
+}

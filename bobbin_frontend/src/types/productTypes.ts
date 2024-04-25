@@ -6,6 +6,7 @@ export type Product = {
   product_number: string
   product_name: string
   user_name: string
+  progress_order: number
   progress_status: string
   file_urls: string[]
 }
@@ -42,6 +43,7 @@ export type UsersApiResponse = {
 
 export type ProgressApiResponse = {
   id: number
+  progress_order: number
   progress_status: string
 }
 export type ProgressesApiResponse = {

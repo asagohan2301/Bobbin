@@ -150,9 +150,9 @@ export default function New() {
             }}
           >
             <option>選択してください</option>
-            {productTypes.map((productType, index) => {
+            {productTypes.map((productType) => {
               return (
-                <option value={productType.id} key={index}>
+                <option value={productType.id} key={productType.id}>
                   {productType.product_type}
                 </option>
               )
@@ -169,9 +169,9 @@ export default function New() {
             disabled={productTypeId === 1}
           >
             <option>選択してください</option>
-            {customers.map((customer, index) => {
+            {customers.map((customer) => {
               return (
-                <option value={customer.id} key={index}>
+                <option value={customer.id} key={customer.id}>
                   {customer.customer_name}
                 </option>
               )
@@ -207,9 +207,9 @@ export default function New() {
             }}
           >
             <option>未定</option>
-            {users.map((user, index) => {
+            {users.map((user) => {
               return (
-                <option value={user.id} key={index}>
+                <option value={user.id} key={user.id}>
                   {user.user_name}
                 </option>
               )
@@ -225,10 +225,10 @@ export default function New() {
             }}
           >
             <option>未定</option>
-            {progresses.map((progress, index) => {
+            {progresses.map((progress) => {
               return (
-                <option value={progress.id} key={index}>
-                  {progress.progress_status}
+                <option value={progress.id} key={progress.id}>
+                  {`${progress.progress_order}: ${progress.progress_status}`}
                 </option>
               )
             })}
