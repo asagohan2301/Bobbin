@@ -1,16 +1,20 @@
 'use client'
 
-import { destroyProduct, getProduct } from '@/services/productService'
+import ButtonWithIcon from '@/components/ButtonWithIcon'
+import UserInfo from '@/components/UserInfo'
+import { getProduct } from '@/services/productService'
 import type { Product } from '@/types/productTypes'
 import type { Params } from '@/types/routeTypes'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import {
+  ChevronLeft,
+  FileEarmarkPlus,
+  PencilSquare,
+} from 'react-bootstrap-icons'
 
 export default function Product({ params }: { params: Params }) {
   const [product, setProduct] = useState<Product | undefined>()
   const [errorMessages, setErrorMessages] = useState<string[]>([])
-
-  const router = useRouter()
 
   useEffect(() => {
     getProduct(params.id)
@@ -37,31 +41,74 @@ export default function Product({ params }: { params: Params }) {
   }
 
   return (
-    <div>
-      <h1>製品詳細</h1>
-      <div>{product.product_type}</div>
-      <div>{product.customer_name}</div>
-      <div>{product.product_number}</div>
-      <div>{product.product_name}</div>
-      <div>{product.user_name}</div>
-      <div>{product.progress_status}</div>
-      {product.file_urls &&
-        product.file_urls.map((fileUrl) => {
-          return <img src={fileUrl} alt={fileUrl} key={fileUrl} />
-        })}
-      <button
-        onClick={() => {
-          destroyProduct(params.id)
-            .then(() => {
-              router.push('/')
-            })
-            .catch((error) => {
-              setErrorMessages(error.message.split(','))
-            })
-        }}
-      >
-        削除
-      </button>
+    <div className="h-screen">
+      <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl">{product.product_name}</h1>
+            <h2 className="mb-2 text-xl">{product.product_number}</h2>
+            <ul className="mb-2 flex gap-10">
+              <li>
+                <span className="text-sm">種別：</span>
+                {product.product_type}
+              </li>
+              <li>
+                <span className="text-sm">お客様名：</span>
+                {product.customer_name}
+              </li>
+              <li>
+                <span className="text-sm">担当者：</span>
+                {product.user_name}
+              </li>
+              <li>
+                <span className="text-sm">進捗：</span>
+                {product.progress_status}
+              </li>
+            </ul>
+          </div>
+          <UserInfo />
+        </div>
+        <div className="mb-4 flex">
+          {product.file_urls && (
+            <>
+              <div className="mr-3">
+                <img src={product.file_urls[0]} alt="file-1" />
+              </div>
+              <div>
+                {product.file_urls.slice(1).map((fileUrl, index) => {
+                  return (
+                    <img
+                      width="200px"
+                      src={fileUrl}
+                      alt={`file-${index + 2}`}
+                      className="mb-3"
+                      key={fileUrl}
+                    />
+                  )
+                })}
+              </div>
+            </>
+          )}
+        </div>
+        <div className="flex justify-between">
+          <ButtonWithIcon
+            IconComponent={ChevronLeft}
+            label="一覧ページへ"
+            href="/"
+          />
+          <div className="flex gap-4">
+            <ButtonWithIcon
+              IconComponent={PencilSquare}
+              label="編集"
+              href={`/product/${product.id}/edit`}
+            />
+            <ButtonWithIcon
+              IconComponent={FileEarmarkPlus}
+              label="ファイル追加"
+            />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

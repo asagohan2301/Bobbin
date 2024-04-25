@@ -8,7 +8,7 @@ export type Product = {
   user_name: string
   progress_order: number
   progress_status: string
-  file_urls: string[]
+  file_urls: string[] | null
 }
 export type ProductApiResponse = {
   product: Product

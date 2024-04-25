@@ -1,5 +1,7 @@
 'use client'
 
+import ButtonWithIcon from '@/components/ButtonWithIcon'
+import UserInfo from '@/components/UserInfo'
 import {
   getProducts,
   getSelectOptions,
@@ -17,6 +19,7 @@ import {
   ChevronDown,
   FileEarmarkPlus,
   PencilSquare,
+  PlusLg,
   Search,
 } from 'react-bootstrap-icons'
 
@@ -107,20 +110,12 @@ export default function Home() {
               />
             </div>
           </div>
-          <div>
-            <div className="mb-1">ABC design</div>
-            <div className="flex items-center">
-              <Image
-                src="/bobbin_icon.png"
-                width={27}
-                height={27}
-                alt="bobbin-icon"
-                className="mr-2"
-              />
-              <div className="mr-6 cursor-pointer">山田</div>
-              <ChevronDown className="cursor-pointer" />
-            </div>
-          </div>
+          <ButtonWithIcon
+            IconComponent={PlusLg}
+            label="製品新規登録"
+            href="product/new"
+          />
+          <UserInfo />
         </div>
         <main>
           <ul className="flex rounded-lg bg-[#EDEDED] py-3 pl-[24px] pr-[30px] text-sm font-semibold text-gray-500">
