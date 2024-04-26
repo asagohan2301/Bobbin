@@ -1,5 +1,8 @@
 'use client'
 
+import ButtonWithIcon from '@/components/ButtonWithIcon'
+import Input from '@/components/Input'
+import Select from '@/components/Select'
 import { getSelectOptions, postProduct } from '@/services/productService'
 import type {
   CustomerApiResponse,
@@ -12,7 +15,8 @@ import type {
   UsersApiResponse,
 } from '@/types/productTypes'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { Check, FileEarmarkPlus, X } from 'react-bootstrap-icons'
 
 export default function New() {
   const groupId = 1
@@ -28,6 +32,8 @@ export default function New() {
   const [progressId, setProgressId] = useState<number | null>(null)
   const [files, setFiles] = useState<File[]>([])
   const [errorMessages, setErrorMessages] = useState<string[]>([])
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const router = useRouter()
 
@@ -133,125 +139,116 @@ export default function New() {
   }
 
   return (
-    <div>
-      <h1>製品登録</h1>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          handlePostProduct()
-        }}
-      >
-        <div>
-          <label htmlFor="productType">種別</label>
-          <select
-            id="productType"
-            onChange={(e) => {
-              setProductTypeId(parseInt(e.target.value))
-            }}
-          >
-            <option>選択してください</option>
-            {productTypes.map((productType) => {
-              return (
-                <option value={productType.id} key={productType.id}>
-                  {productType.product_type}
-                </option>
-              )
-            })}
-          </select>
+    <div className="h-screen">
+      <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
+        <h1 className="mb-8 text-2xl">製品登録</h1>
+        <div className="flex gap-20">
+          <form className="flex-[3_3_0%]">
+            <Select<ProductTypeApiResponse>
+              title="種別"
+              elementName="productType"
+              onChange={(e) => {
+                setProductTypeId(parseInt(e.target.value))
+              }}
+              initialValue="選択してください"
+              objects={productTypes}
+              propertyName="product_type"
+            />
+            <Select<CustomerApiResponse>
+              title="お客様名"
+              elementName="customer"
+              onChange={(e) => {
+                setCustomerId(parseInt(e.target.value))
+              }}
+              initialValue="選択してください"
+              objects={customers}
+              propertyName="customer_name"
+              disabled={productTypeId === 1}
+            />
+            <Input
+              title="品番"
+              elementName="productNumber"
+              onChange={(e) => {
+                setProductNumber(e.target.value)
+              }}
+            />
+            <Input
+              title="品名"
+              elementName="productName"
+              onChange={(e) => {
+                setProductName(e.target.value)
+              }}
+            />
+            <Select<UserApiResponse>
+              title="担当者"
+              elementName="user"
+              onChange={(e) => {
+                setUserId(parseInt(e.target.value))
+              }}
+              initialValue="未定"
+              objects={users}
+              propertyName="user_name"
+            />
+            <Select<ProgressApiResponse>
+              title="進捗"
+              elementName="progress"
+              onChange={(e) => {
+                setProgressId(parseInt(e.target.value))
+              }}
+              initialValue="未定"
+              objects={progresses}
+              propertyName="progress_status"
+              propertyName2="progress_order"
+            />
+          </form>
+          <div className="flex-[5_5_0%]">
+            <p className="mb-2">ファイル一覧</p>
+            <div className="mb-3 h-4/5 border-2 border-gray-400"></div>
+            <ButtonWithIcon
+              IconComponent={FileEarmarkPlus}
+              label="ファイルを追加"
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.click()
+                }
+              }}
+            />
+            <input
+              type="file"
+              multiple
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFiles(Array.from(e.target.files))
+                }
+              }}
+              ref={fileInputRef}
+              className="hidden"
+            />
+          </div>
         </div>
-        <div>
-          <label htmlFor="customer">お客様名</label>
-          <select
-            id="customer"
-            onChange={(e) => {
-              setCustomerId(parseInt(e.target.value))
-            }}
-            disabled={productTypeId === 1}
-          >
-            <option>選択してください</option>
-            {customers.map((customer) => {
-              return (
-                <option value={customer.id} key={customer.id}>
-                  {customer.customer_name}
-                </option>
-              )
-            })}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="productNumber">品番</label>
-          <input
-            type="text"
-            id="productNumber"
-            onChange={(e) => {
-              setProductNumber(e.target.value)
+        <div className="flex justify-end gap-4">
+          <ButtonWithIcon
+            IconComponent={X}
+            label="キャンセル"
+            onClick={() => {
+              console.log('back')
             }}
           />
-        </div>
-        <div>
-          <label htmlFor="productName">品名</label>
-          <input
-            type="text"
-            id="productName"
-            onChange={(e) => {
-              setProductName(e.target.value)
-            }}
+          <ButtonWithIcon
+            IconComponent={Check}
+            label="登録"
+            onClick={handlePostProduct}
           />
         </div>
-        <div>
-          <label htmlFor="user">担当者</label>
-          <select
-            id="user"
-            onChange={(e) => {
-              setUserId(parseInt(e.target.value))
-            }}
-          >
-            <option>未定</option>
-            {users.map((user) => {
-              return (
-                <option value={user.id} key={user.id}>
-                  {user.user_name}
-                </option>
-              )
-            })}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="progress">進捗</label>
-          <select
-            id="progress"
-            onChange={(e) => {
-              setProgressId(parseInt(e.target.value))
-            }}
-          >
-            <option>未定</option>
-            {progresses.map((progress) => {
-              return (
-                <option value={progress.id} key={progress.id}>
-                  {`${progress.progress_order}: ${progress.progress_status}`}
-                </option>
-              )
-            })}
-          </select>
-        </div>
-        <input
-          type="file"
-          multiple
-          onChange={(e) => {
-            if (e.target.files) {
-              setFiles(Array.from(e.target.files))
-            }
-          }}
-        />
-        <button>登録</button>
-      </form>
-      {errorMessages.length > 0 && (
-        <ul>
-          {errorMessages.map((errorMessage, index) => (
-            <li key={index}>{errorMessage}</li>
-          ))}
-        </ul>
-      )}
+        {errorMessages.length > 0 && (
+          <ul>
+            {errorMessages.map((errorMessage, index) => (
+              <li key={index}>{errorMessage}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <footer className="absolute bottom-0 h-8 w-full"></footer>
     </div>
   )
 }
