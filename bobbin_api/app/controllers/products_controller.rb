@@ -52,7 +52,17 @@ class ProductsController < ApplicationController
   end
 
   def format_product_response(product)
-    file_urls = product.files.map { |file| url_for(file) } if product.files.attached?
+    files = []
+    if product.files.attached?
+      files = product.files.map do |file|
+        {
+          id: file.id,
+          url: url_for(file),
+          content_type: file.content_type
+        }
+      end
+    end
+
     {
       id: product.id,
       group_name: product.group.group_name,
@@ -63,7 +73,7 @@ class ProductsController < ApplicationController
       user_name: product.user.user_name,
       progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
-      file_urls:
+      files:
     }
   end
 
