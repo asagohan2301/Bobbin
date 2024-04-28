@@ -18,6 +18,12 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { Check, FileEarmarkPlus, X } from 'react-bootstrap-icons'
 
+type PreviewFile = {
+  url: string
+  name: string
+  type: string
+}
+
 export default function New() {
   const groupId = 1
   const [productTypes, setProductTypes] = useState<ProductTypeApiResponse[]>([])
@@ -31,7 +37,7 @@ export default function New() {
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
   const [progressId, setProgressId] = useState<number | null>(null)
   const [files, setFiles] = useState<File[]>([])
-  const [previewUrls, setPreviewUrls] = useState<string[]>([])
+  const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([])
   const [errorMessages, setErrorMessages] = useState<string[]>([])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -43,11 +49,17 @@ export default function New() {
   }, [])
 
   useEffect(() => {
-    const newPreviewUrls = files.map((file) => URL.createObjectURL(file))
-    setPreviewUrls(newPreviewUrls)
+    const newPreviewFiles = files.map((file) => {
+      return {
+        url: URL.createObjectURL(file),
+        name: file.name,
+        type: file.type,
+      }
+    })
+    setPreviewFiles(newPreviewFiles)
 
     return () => {
-      newPreviewUrls.forEach((url) => URL.revokeObjectURL(url))
+      newPreviewFiles.forEach((file) => URL.revokeObjectURL(file.url))
     }
   }, [files])
 
@@ -106,7 +118,7 @@ export default function New() {
 
   const removeFile = (index: number) => {
     setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
-    URL.revokeObjectURL(previewUrls[index])
+    URL.revokeObjectURL(previewFiles[index].url)
   }
 
   const validateProductForm = () => {
@@ -219,26 +231,49 @@ export default function New() {
           <div className="flex-[5_5_0%]">
             <p className="mb-2">ファイル一覧</p>
             <div className="mb-3 h-auto min-h-[200px] border-2 border-gray-400">
-              {previewUrls.length > 0 && (
+              {previewFiles.length > 0 && (
                 <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
-                  {previewUrls.map((url, index) => {
-                    return (
-                      <div key={index} className="flex-[0_0_19.1%]">
-                        <img
-                          src={url}
-                          alt={`preview-${index}`}
-                          onLoad={() => URL.revokeObjectURL(url)}
-                          className="cursor-pointer"
-                        />
-                        <button
-                          onClick={() => {
-                            removeFile(index)
-                          }}
-                        >
-                          <X className="size-[28px]" />
-                        </button>
-                      </div>
-                    )
+                  {previewFiles.map((file, index) => {
+                    if (
+                      ['image/jpeg', 'image/png', 'image/gif'].includes(
+                        file.type,
+                      )
+                    ) {
+                      return (
+                        <div key={index} className="flex-[0_0_19.1%]">
+                          <img
+                            src={file.url}
+                            alt={`preview-${index}`}
+                            onLoad={() => URL.revokeObjectURL(file.url)}
+                            className="mb-1 cursor-pointer border"
+                          />
+                          <p className="text-xs">{file.name}</p>
+                          <button
+                            onClick={() => {
+                              removeFile(index)
+                            }}
+                          >
+                            <X className="size-[28px]" />
+                          </button>
+                        </div>
+                      )
+                    } else if (file.type === 'application/pdf') {
+                      return (
+                        <div key={index} className="flex-[0_0_19.1%]">
+                          <div className="mb-1 min-h-[80px] border p-2">
+                            PDF file
+                          </div>
+                          <p className="text-xs">{file.name}</p>
+                          <button
+                            onClick={() => {
+                              removeFile(index)
+                            }}
+                          >
+                            <X className="size-[28px]" />
+                          </button>
+                        </div>
+                      )
+                    }
                   })}
                 </div>
               )}
