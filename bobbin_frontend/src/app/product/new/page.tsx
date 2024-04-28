@@ -31,6 +31,7 @@ export default function New() {
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
   const [progressId, setProgressId] = useState<number | null>(null)
   const [files, setFiles] = useState<File[]>([])
+  const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const [errorMessages, setErrorMessages] = useState<string[]>([])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -40,6 +41,15 @@ export default function New() {
   useEffect(() => {
     handleGetSelectOptions()
   }, [])
+
+  useEffect(() => {
+    const newPreviewUrls = files.map((file) => URL.createObjectURL(file))
+    setPreviewUrls(newPreviewUrls)
+
+    return () => {
+      newPreviewUrls.forEach((url) => URL.revokeObjectURL(url))
+    }
+  }, [files])
 
   const handleGetSelectOptions = async () => {
     try {
@@ -92,6 +102,11 @@ export default function New() {
         }
       })
     }
+  }
+
+  const removeFile = (index: number) => {
+    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
+    URL.revokeObjectURL(previewUrls[index])
   }
 
   const validateProductForm = () => {
@@ -203,7 +218,31 @@ export default function New() {
           </form>
           <div className="flex-[5_5_0%]">
             <p className="mb-2">ファイル一覧</p>
-            <div className="mb-3 h-4/5 border-2 border-gray-400"></div>
+            <div className="mb-3 h-auto min-h-[200px] border-2 border-gray-400">
+              {previewUrls.length > 0 && (
+                <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
+                  {previewUrls.map((url, index) => {
+                    return (
+                      <div key={index} className="flex-[0_0_19.1%]">
+                        <img
+                          src={url}
+                          alt={`preview-${index}`}
+                          onLoad={() => URL.revokeObjectURL(url)}
+                          className="cursor-pointer"
+                        />
+                        <button
+                          onClick={() => {
+                            removeFile(index)
+                          }}
+                        >
+                          <X className="size-[28px]" />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
             <ButtonWithIcon
               IconComponent={FileEarmarkPlus}
               label="ファイルを追加"
@@ -218,7 +257,8 @@ export default function New() {
               multiple
               onChange={(e) => {
                 if (e.target.files) {
-                  setFiles(Array.from(e.target.files))
+                  const newFiles = Array.from(e.target.files)
+                  setFiles((prevFiles) => [...prevFiles, ...newFiles])
                 }
               }}
               ref={fileInputRef}
