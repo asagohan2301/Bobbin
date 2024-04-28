@@ -8,13 +8,29 @@ import type { Params } from '@/types/routeTypes'
 import { useEffect, useState } from 'react'
 import {
   ChevronLeft,
+  ChevronRight,
   FileEarmarkPlus,
   PencilSquare,
 } from 'react-bootstrap-icons'
 
+import { Document, Page, pdfjs } from 'react-pdf'
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.min.js',
+  import.meta.url,
+).toString()
+
+const options = {
+  cMapUrl: `https://unpkg.com/pdfjs-dist@${pdfjs.version}/cmaps/`,
+}
+
+const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
+
 export default function Product({ params }: { params: Params }) {
   const [product, setProduct] = useState<Product | undefined>()
   const [errorMessages, setErrorMessages] = useState<string[]>([])
+  const [numPages, setNumPages] = useState<number>()
+  const [pageNumber, setPageNumber] = useState<number>(1)
 
   useEffect(() => {
     getProduct(params.id)
@@ -25,6 +41,10 @@ export default function Product({ params }: { params: Params }) {
         setErrorMessages(error.message.split(','))
       })
   }, [params.id])
+
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
+    setNumPages(numPages)
+  }
 
   if (errorMessages.length > 0) {
     return (
@@ -69,24 +89,66 @@ export default function Product({ params }: { params: Params }) {
           <UserInfo />
         </div>
         <div className="mb-4 flex">
-          {product.file_urls && (
+          {product.files.length > 0 && (
             <>
-              <div className="mr-3">
-                <img src={product.file_urls[0]} alt="file-1" />
-              </div>
-              <div>
-                {product.file_urls.slice(1).map((fileUrl, index) => {
-                  return (
-                    <img
-                      width="200px"
-                      src={fileUrl}
-                      alt={`file-${index + 2}`}
-                      className="mb-3"
-                      key={fileUrl}
-                    />
+              {product.files.map((file, index) => {
+                if (
+                  ['image/jpeg', 'image/png', 'image/gif'].includes(
+                    file.content_type,
                   )
-                })}
-              </div>
+                ) {
+                  return (
+                    <div
+                      className={`img-container ${index === 0 ? 'w-120 mr-2' : 'mb-2 w-60'}`}
+                      key={file.id}
+                    >
+                      <img src={file.url} alt={`file-${file.id}`} />
+                    </div>
+                  )
+                } else if (file.content_type == 'application/pdf') {
+                  return (
+                    <div key={file.id}>
+                      <div className="mb-2 border-2 border-gray-400">
+                        <Document
+                          file={`${apiEndpoint}/api/products/${params.id}/files/${file.id}/proxy`}
+                          options={options}
+                          onLoadSuccess={onDocumentLoadSuccess}
+                        >
+                          <Page
+                            width={400}
+                            renderTextLayer={false}
+                            renderAnnotationLayer={false}
+                            pageNumber={pageNumber}
+                          />
+                        </Document>
+                      </div>
+                      <div className="flex justify-center gap-6">
+                        <button
+                          onClick={() => {
+                            if (pageNumber === 1) {
+                              return
+                            }
+                            setPageNumber((current) => current - 1)
+                          }}
+                        >
+                          <ChevronLeft />
+                        </button>
+                        <p>{`${pageNumber} / ${numPages}`}</p>
+                        <button
+                          onClick={() => {
+                            if (pageNumber === numPages) {
+                              return
+                            }
+                            setPageNumber((current) => current + 1)
+                          }}
+                        >
+                          <ChevronRight />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                }
+              })}
             </>
           )}
         </div>

@@ -8,6 +8,7 @@ bobbin_api/.bundle
 
 # Ignore all logfiles and tempfiles.
 bobbin_api/log/*.log
+bobbin_api/log/development.log.0
 bobbin_api/tmp
 
 # Ignore other unneeded files.

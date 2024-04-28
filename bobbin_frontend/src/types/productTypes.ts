@@ -8,7 +8,7 @@ export type Product = {
   user_name: string
   progress_order: number
   progress_status: string
-  file_urls: string[] | null
+  files: File[] | []
 }
 export type ProductApiResponse = {
   product: Product
@@ -48,4 +48,10 @@ export type ProgressApiResponse = {
 }
 export type ProgressesApiResponse = {
   progresses: ProgressApiResponse[]
+}
+
+type File = {
+  id: number
+  url: string
+  content_type: string
 }
