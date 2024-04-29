@@ -1,6 +1,7 @@
 'use client'
 
 import ButtonWithIcon from '@/components/ButtonWithIcon'
+import ErrorMessage from '@/components/ErrorMessage'
 import Input from '@/components/Input'
 import Select from '@/components/Select'
 import { getSelectOptions, postProduct } from '@/services/productService'
@@ -22,6 +23,7 @@ type PreviewFile = {
   url: string
   name: string
   type: string
+  size: number
 }
 
 export default function New() {
@@ -36,9 +38,16 @@ export default function New() {
   const [userId, setUserId] = useState<number | null>(null)
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
   const [progressId, setProgressId] = useState<number | null>(null)
+  const [productValidateErrorMessages, setProductValidateErrorMessages] =
+    useState<string[]>([])
+  const [loadErrorMessages, setLoadErrorMessages] = useState<string[]>([])
+
   const [files, setFiles] = useState<File[]>([])
+  const [fileTotalSize, setFileTotalSize] = useState<number>(0)
   const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([])
-  const [errorMessages, setErrorMessages] = useState<string[]>([])
+  const [fileValidateErrorMessages, setFileValidateErrorMessages] = useState<
+    string[]
+  >([])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -54,6 +63,7 @@ export default function New() {
         url: URL.createObjectURL(file),
         name: file.name,
         type: file.type,
+        size: file.size,
       }
     })
     setPreviewFiles(newPreviewFiles)
@@ -100,7 +110,7 @@ export default function New() {
         throw new Error('進捗のデータがありません')
       }
     } catch (error) {
-      setErrorMessages((currentMessages) => {
+      setLoadErrorMessages((currentMessages) => {
         if (error instanceof Error) {
           const newMessage = error.message
           return currentMessages.includes(newMessage)
@@ -117,7 +127,12 @@ export default function New() {
   }
 
   const removeFile = (index: number) => {
-    setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index))
+    const newSize = fileTotalSize - files[index].size
+    setFiles((prevFiles) => {
+      const newFiles = prevFiles.filter((_, i) => i !== index)
+      setFileTotalSize(newSize)
+      return newFiles
+    })
     URL.revokeObjectURL(previewFiles[index].url)
   }
 
@@ -136,11 +151,55 @@ export default function New() {
       messages.push('品名を入力してください')
     }
     if (messages.length > 0) {
-      setErrorMessages(messages)
+      setProductValidateErrorMessages(messages)
       return false
     } else {
       return true
     }
+  }
+
+  const validateFiles = (
+    validateFiles: File[],
+    fileLength: number,
+    fileTotalSize: number,
+  ) => {
+    const messages = new Set<string>()
+    if (fileLength > 10) {
+      messages.add(
+        'ファイル数が上限を超えるため追加できませんでした。一度にアップロードできるファイルは10個までです。',
+      )
+    }
+    if (fileTotalSize > 3000000) {
+      messages.add(
+        'ファイルの合計容量が上限を超えるため追加できませんでした。アップロードできるファイルの合計は3MB以下です。',
+      )
+    }
+
+    for (const validateFile of validateFiles) {
+      if (
+        !['image/jpeg', 'image/png', 'image/gif', 'application/pdf'].includes(
+          validateFile.type,
+        )
+      ) {
+        messages.add(
+          'サポート対象外のファイルがあるため追加できませんでした。アップロードできるファイルは画像 (JPEG, PNG, GIF) とPDFファイルです。',
+        )
+      }
+      if (validateFile.size > 1000000) {
+        messages.add(
+          '容量が上限を超えているファイルがあるため追加できませんでした。アップロードできるファイルの容量は1ファイル1MB以下です。',
+        )
+      }
+      if (files.some((file) => file.name === validateFile.name)) {
+        messages.add(
+          '同じ名前のファイルが既に存在するため追加できませんでした。',
+        )
+      }
+    }
+
+    const messageArray = Array.from(messages)
+    setFileValidateErrorMessages(messageArray)
+    return messages.size === 0
   }
 
   const handlePostProduct = () => {
@@ -161,7 +220,7 @@ export default function New() {
         router.push(`/product/${id}`)
       })
       .catch((error) => {
-        setErrorMessages(error.message.split(','))
+        setLoadErrorMessages(error.message.split(','))
       })
   }
 
@@ -248,6 +307,9 @@ export default function New() {
                             className="mb-1 cursor-pointer border"
                           />
                           <p className="text-xs">{file.name}</p>
+                          <p className="text-xs">
+                            {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                          </p>
                           <button
                             onClick={() => {
                               removeFile(index)
@@ -264,6 +326,9 @@ export default function New() {
                             PDF file
                           </div>
                           <p className="text-xs">{file.name}</p>
+                          <p className="text-xs">
+                            {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                          </p>
                           <button
                             onClick={() => {
                               removeFile(index)
@@ -277,50 +342,72 @@ export default function New() {
                   })}
                 </div>
               )}
+              <p className="p-2 text-right text-sm">{`合計 ${(fileTotalSize / 1024 / 1024).toFixed(2)} MB / 最大 3MB`}</p>
             </div>
-            <ButtonWithIcon
-              IconComponent={FileEarmarkPlus}
-              label="ファイルを追加"
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.click()
-                }
-              }}
-            />
-            <input
-              type="file"
-              multiple
-              onChange={(e) => {
-                if (e.target.files) {
-                  const newFiles = Array.from(e.target.files)
-                  setFiles((prevFiles) => [...prevFiles, ...newFiles])
-                }
-              }}
-              ref={fileInputRef}
-              className="hidden"
-            />
+            <div className="flex gap-3">
+              <ButtonWithIcon
+                IconComponent={FileEarmarkPlus}
+                label="ファイルを追加"
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.click()
+                  }
+                }}
+              />
+              <input
+                type="file"
+                multiple
+                onChange={(e) => {
+                  if (e.target.files) {
+                    const newFiles = Array.from(e.target.files)
+                    const newSize = newFiles.reduce(
+                      (total, file) => total + file.size,
+                      fileTotalSize,
+                    )
+                    if (
+                      validateFiles(
+                        newFiles,
+                        files.length + newFiles.length,
+                        newSize,
+                      )
+                    ) {
+                      setFiles((prevFiles) => [...prevFiles, ...newFiles])
+                      setFileTotalSize(newSize)
+                    }
+
+                    e.target.value = ''
+                  }
+                }}
+                ref={fileInputRef}
+                className="hidden"
+              />
+              <p className="text-sm">
+                ・アップロードできるファイルは、画像 (JPEG, PNG, GIF)
+                とPDFファイルです。
+                <br />
+                ・各ファイルの容量は1MBまで、合計3MBまでです。
+                <br />
+                ・一度にアップロードできるファイルは最大10個です。
+              </p>
+            </div>
+            {fileValidateErrorMessages.length > 0 && (
+              <ErrorMessage errorMessages={fileValidateErrorMessages} />
+            )}
           </div>
         </div>
         <div className="flex justify-end gap-4">
-          <ButtonWithIcon
-            IconComponent={X}
-            label="キャンセル"
-            onClick={() => {
-              console.log('back')
-            }}
-          />
+          <ButtonWithIcon IconComponent={X} label="キャンセル" href="/" />
           <ButtonWithIcon
             IconComponent={Check}
             label="登録"
             onClick={handlePostProduct}
           />
         </div>
-        {errorMessages.length > 0 && (
-          <ul>
-            {errorMessages.map((errorMessage, index) => (
-              <li key={index}>{errorMessage}</li>
-            ))}
-          </ul>
+        {loadErrorMessages.length > 0 && (
+          <ErrorMessage errorMessages={loadErrorMessages} />
+        )}
+        {productValidateErrorMessages.length > 0 && (
+          <ErrorMessage errorMessages={productValidateErrorMessages} />
         )}
       </div>
       <footer className="absolute bottom-0 h-8 w-full"></footer>
