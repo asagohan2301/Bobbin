@@ -29,6 +29,7 @@ export default function Home() {
   const [hoveredProductId, setHoveredProductId] = useState<number | null>(null)
   const [clickedProductId, setClickedProductId] = useState<number | null>(null)
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
+  const [filter, setFilter] = useState<string>('all')
 
   useEffect(() => {
     getProducts()
@@ -41,6 +42,28 @@ export default function Home() {
 
     getProgressData()
   }, [])
+
+  const filteredProducts = products.filter((product) => {
+    if (filter === 'all') {
+      return true
+    }
+    if (filter === 'oem') {
+      return product.product_type === 'OEM'
+    }
+    if (filter === '入荷済み') {
+      return product.progress_status === '入荷済み'
+    }
+  })
+
+  const filterItems = [
+    { filterName: 'all', displayName: 'すべて', column: null },
+    { filterName: 'oem', displayName: 'OEM', column: 'product_type' },
+    {
+      filterName: '入荷済み',
+      displayName: '入荷済み',
+      column: 'progress_status',
+    },
+  ]
 
   const getProgressData = async () => {
     const progressData =
@@ -88,13 +111,26 @@ export default function Home() {
         <div className="mb-7 flex items-end justify-between">
           <div className="flex items-center gap-x-12">
             <ul className="flex gap-x-8 text-gray-400">
-              <li className="relative cursor-pointer font-bold text-[#FFA471]">
-                <div>すべて</div>
-                <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
-              </li>
-              <li className="cursor-pointer">進行中</li>
-              <li className="cursor-pointer">入荷済み</li>
-              <li className="cursor-pointer">担当モデル</li>
+              {filterItems.map((filterItem, index) => {
+                return (
+                  <li
+                    key={index}
+                    className={
+                      filter === filterItem.filterName
+                        ? 'relative cursor-pointer font-bold text-[#FFA471]'
+                        : 'cursor-pointer'
+                    }
+                    onClick={() => {
+                      setFilter(filterItem.filterName)
+                    }}
+                  >
+                    <p>{filterItem.displayName}</p>
+                    {filter === filterItem.filterName && (
+                      <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
+                    )}
+                  </li>
+                )
+              })}
             </ul>
             <div className="cursor-pointer">
               <PencilSquare className="size-[21px] text-gray-700" />
@@ -128,7 +164,7 @@ export default function Home() {
             <li className="flex-[3_3_0%]"></li>
           </ul>
           <ul className="custom-scrollbar h-[calc(100vh-180px-32px)] overflow-y-auto">
-            {products.map((product) => {
+            {filteredProducts.map((product) => {
               const isHoverd = product.id === hoveredProductId
               const isClicked = product.id === clickedProductId
               return (
