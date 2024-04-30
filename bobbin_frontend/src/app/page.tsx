@@ -29,7 +29,6 @@ export default function Home() {
   const [hoveredProductId, setHoveredProductId] = useState<number | null>(null)
   const [clickedProductId, setClickedProductId] = useState<number | null>(null)
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
-  const [filter, setFilter] = useState<string>('all')
 
   useEffect(() => {
     getProducts()
@@ -43,27 +42,48 @@ export default function Home() {
     getProgressData()
   }, [])
 
-  const filteredProducts = products.filter((product) => {
-    if (filter === 'all') {
-      return true
-    }
-    if (filter === 'oem') {
-      return product.product_type === 'OEM'
-    }
-    if (filter === '入荷済み') {
-      return product.progress_status === '入荷済み'
-    }
-  })
+  type Filter = {
+    id: number
+    filter_name: string
+    column: string
+    keyword: string
+  }
 
-  const filterItems = [
-    { filterName: 'all', displayName: 'すべて', column: null },
-    { filterName: 'oem', displayName: 'OEM', column: 'product_type' },
+  const filters: Filter[] = [
     {
-      filterName: '入荷済み',
-      displayName: '入荷済み',
+      id: 1,
+      filter_name: 'すべて',
+      column: '',
+      keyword: '',
+    },
+    {
+      id: 2,
+      filter_name: 'OEM',
+      column: 'product_type',
+      keyword: 'OEM',
+    },
+    {
+      id: 3,
+      filter_name: '管理終了',
       column: 'progress_status',
+      keyword: '入荷済み',
     },
   ]
+
+  const [filterId, setFilterId] = useState<number>(filters[0].id)
+
+  const filteredProducts = products.filter((product) => {
+    const currentFilter = filters.find((filter) => {
+      return filter.id === filterId
+    })
+    if (!currentFilter || currentFilter.column === '') {
+      return true
+    } else {
+      return (
+        product[currentFilter.column as keyof Product] === currentFilter.keyword
+      )
+    }
+  })
 
   const getProgressData = async () => {
     const progressData =
@@ -111,21 +131,21 @@ export default function Home() {
         <div className="mb-7 flex items-end justify-between">
           <div className="flex items-center gap-x-12">
             <ul className="flex gap-x-8 text-gray-400">
-              {filterItems.map((filterItem, index) => {
+              {filters.map((filter) => {
                 return (
                   <li
-                    key={index}
+                    key={filter.id}
                     className={
-                      filter === filterItem.filterName
+                      filterId === filter.id
                         ? 'relative cursor-pointer font-bold text-[#FFA471]'
                         : 'cursor-pointer'
                     }
                     onClick={() => {
-                      setFilter(filterItem.filterName)
+                      setFilterId(filter.id)
                     }}
                   >
-                    <p>{filterItem.displayName}</p>
-                    {filter === filterItem.filterName && (
+                    <p>{filter.filter_name}</p>
+                    {filterId === filter.id && (
                       <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
                     )}
                   </li>
