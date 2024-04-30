@@ -55,3 +55,13 @@ type File = {
   url: string
   content_type: string
 }
+
+export type FilterApiResponse = {
+  id: number
+  filter_name: string
+  target_column: string
+  target_value: string
+}
+export type FiltersApiResponse = {
+  filters: FilterApiResponse[]
+}

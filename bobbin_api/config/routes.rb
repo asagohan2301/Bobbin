@@ -13,5 +13,6 @@ Rails.application.routes.draw do
     resources :customers
     resources :users
     resources :progresses
+    resources :filters
   end
 end
