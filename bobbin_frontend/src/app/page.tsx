@@ -8,6 +8,8 @@ import {
   updateProgressStatus,
 } from '@/services/productService'
 import type {
+  FilterApiResponse,
+  FiltersApiResponse,
   Product,
   ProgressApiResponse,
   ProgressesApiResponse,
@@ -29,6 +31,8 @@ export default function Home() {
   const [hoveredProductId, setHoveredProductId] = useState<number | null>(null)
   const [clickedProductId, setClickedProductId] = useState<number | null>(null)
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
+  const [filters, setFilters] = useState<FilterApiResponse[]>([])
+  const [filterName, setFilterName] = useState<string>('すべて')
 
   useEffect(() => {
     getProducts()
@@ -40,47 +44,23 @@ export default function Home() {
       })
 
     getProgressData()
+    getFilterData()
   }, [])
 
-  type Filter = {
-    id: number
-    filter_name: string
-    column: string
-    keyword: string
-  }
-
-  const filters: Filter[] = [
-    {
-      id: 1,
-      filter_name: 'すべて',
-      column: '',
-      keyword: '',
-    },
-    {
-      id: 2,
-      filter_name: 'OEM',
-      column: 'product_type',
-      keyword: 'OEM',
-    },
-    {
-      id: 3,
-      filter_name: '管理終了',
-      column: 'progress_status',
-      keyword: '入荷済み',
-    },
-  ]
-
-  const [filterId, setFilterId] = useState<number>(filters[0].id)
-
   const filteredProducts = products.filter((product) => {
+    if (filterName === 'すべて') {
+      return true
+    }
+
     const currentFilter = filters.find((filter) => {
-      return filter.id === filterId
+      return filter.filter_name === filterName
     })
-    if (!currentFilter || currentFilter.column === '') {
+    if (!currentFilter) {
       return true
     } else {
       return (
-        product[currentFilter.column as keyof Product] === currentFilter.keyword
+        product[currentFilter.target_column as keyof Product] ===
+        currentFilter.target_value
       )
     }
   })
@@ -89,6 +69,11 @@ export default function Home() {
     const progressData =
       await getSelectOptions<ProgressesApiResponse>('progresses')
     setProgresses(progressData.progresses)
+  }
+
+  const getFilterData = async () => {
+    const filterData = await getSelectOptions<FiltersApiResponse>('filters')
+    setFilters(filterData.filters)
   }
 
   const handleUpdateProgressStatus = async (
@@ -131,21 +116,36 @@ export default function Home() {
         <div className="mb-7 flex items-end justify-between">
           <div className="flex items-center gap-x-12">
             <ul className="flex gap-x-8 text-gray-400">
+              <li
+                className={
+                  filterName === 'すべて'
+                    ? 'relative cursor-pointer font-bold text-[#FFA471]'
+                    : 'cursor-pointer'
+                }
+                onClick={() => {
+                  setFilterName('すべて')
+                }}
+              >
+                <p>すべて</p>
+                {filterName === 'すべて' && (
+                  <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
+                )}
+              </li>
               {filters.map((filter) => {
                 return (
                   <li
                     key={filter.id}
                     className={
-                      filterId === filter.id
+                      filterName === filter.filter_name
                         ? 'relative cursor-pointer font-bold text-[#FFA471]'
                         : 'cursor-pointer'
                     }
                     onClick={() => {
-                      setFilterId(filter.id)
+                      setFilterName(filter.filter_name)
                     }}
                   >
                     <p>{filter.filter_name}</p>
-                    {filterId === filter.id && (
+                    {filterName === filter.filter_name && (
                       <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
                     )}
                   </li>
