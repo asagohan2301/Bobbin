@@ -18,3 +18,4 @@ src/env.d.ts
 *.mjs
 postcss.config.js
 tailwind.config.ts
+coverage/
