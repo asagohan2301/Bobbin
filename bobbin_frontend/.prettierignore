@@ -13,4 +13,5 @@ next.config.js
 next.config.mjs
 postcss.config.js
 tailwind.config.ts
+jest.config.ts
 coverage/
