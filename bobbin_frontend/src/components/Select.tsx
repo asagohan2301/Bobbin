@@ -7,7 +7,7 @@ type SelectProps<T> = {
   propertyName: keyof T
   propertyName2?: keyof T
   disabled?: boolean
-  currentValue: string
+  currentSelectedId?: number
 }
 
 export default function Select<T extends { id: number }>(
@@ -21,8 +21,8 @@ export default function Select<T extends { id: number }>(
     objects,
     propertyName,
     propertyName2,
-    currentValue,
     disabled,
+    currentSelectedId,
   } = props
   return (
     <div className="mb-4 flex flex-col">
@@ -42,9 +42,7 @@ export default function Select<T extends { id: number }>(
             <option
               value={object.id}
               key={object.id}
-              selected={
-                object[propertyName] === currentValue ? true : undefined
-              }
+              selected={object.id === currentSelectedId ? true : undefined}
               className="border-b-2 p-2"
             >
               {String(displayText)}

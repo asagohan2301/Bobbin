@@ -66,11 +66,15 @@ class ProductsController < ApplicationController
     {
       id: product.id,
       group_name: product.group.group_name,
+      product_type_id: product.product_type.id,
       product_type: product.product_type.product_type,
+      customer_id: product.customer.id,
       customer_name: product.customer.customer_name,
       product_number: product.product_number,
       product_name: product.product_name,
+      user_id: product.user.id,
       user_name: product.user.user_name,
+      progress_id: product.progress.id,
       progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
       files:

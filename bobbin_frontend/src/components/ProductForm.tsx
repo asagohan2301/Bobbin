@@ -4,10 +4,11 @@ import ButtonWithIcon from '@/components/ButtonWithIcon'
 import ErrorMessage from '@/components/ErrorMessage'
 import Input from '@/components/Input'
 import Select from '@/components/Select'
-import { getSelectOptions, postProduct } from '@/services/productService'
+import { getSelectOptions } from '@/services/productService'
 import type {
   CustomerApiResponse,
   CustomersApiResponse,
+  PreviewFile,
   ProductTypeApiResponse,
   ProductTypesApiResponse,
   ProgressApiResponse,
@@ -15,40 +16,81 @@ import type {
   UserApiResponse,
   UsersApiResponse,
 } from '@/types/productTypes'
-import { useRouter } from 'next/navigation'
+import {
+  calculateFilesTotalSize,
+  checkFilesErrors,
+  generatePreviewFiles,
+  removeFile,
+} from '@/utils/fileUtils'
+import { validateProductForm } from '@/utils/validateUtils'
 import { useEffect, useRef, useState } from 'react'
-import { Check, FileEarmarkPlus, X } from 'react-bootstrap-icons'
+import { Check, FileEarmarkPlus, Trash3, X } from 'react-bootstrap-icons'
 
-type PreviewFile = {
-  url: string
-  name: string
-  type: string
-  size: number
+type ProductFormProps = {
+  title: string
+  currentProductTypeId?: number
+  currentCustomerId?: number
+  currentProductNumber?: string
+  currentProductName?: string
+  currentUserId?: number
+  currentProgressId?: number
+  submitButtonTitle: string
+  submitButtonAction: (
+    groupId: number,
+    productTypeId: number,
+    customerId: number,
+    productNumber: string,
+    productName: string,
+    userId: number,
+    progressId: number,
+    files: File[],
+  ) => Promise<void>
+  showDestroyButton?: boolean
+  destroyButtonAction?: () => Promise<void>
+  responseErrorMessages: string[]
 }
 
-export default function ProductForm({
-  title,
-  currentProductType,
-  currentCustomerName,
-  currentProductNumber,
-  currentProductName,
-  currentUserName,
-  currentProgressStatus,
-}) {
+export default function ProductForm(props: ProductFormProps) {
+  const {
+    title,
+    currentProductTypeId,
+    currentCustomerId,
+    currentProductNumber,
+    currentProductName,
+    currentUserId,
+    currentProgressId,
+    submitButtonTitle,
+    submitButtonAction,
+    showDestroyButton,
+    destroyButtonAction,
+    responseErrorMessages,
+  } = props
+
   const groupId = 1
   const [productTypes, setProductTypes] = useState<ProductTypeApiResponse[]>([])
-  const [productTypeId, setProductTypeId] = useState<number | null>(null)
+  const [productTypeId, setProductTypeId] = useState<number | null>(
+    currentProductTypeId || null,
+  )
   const [customers, setCustomers] = useState<CustomerApiResponse[]>([])
-  const [customerId, setCustomerId] = useState<number | null>(null)
-  const [productNumber, setProductNumber] = useState<string>('')
-  const [productName, setProductName] = useState<string>('')
+  const [customerId, setCustomerId] = useState<number | null>(
+    currentCustomerId || null,
+  )
+  const [productNumber, setProductNumber] = useState<string>(
+    currentProductNumber || '',
+  )
+  const [productName, setProductName] = useState<string>(
+    currentProductName || '',
+  )
   const [users, setUsers] = useState<UserApiResponse[]>([])
-  const [userId, setUserId] = useState<number | null>(null)
+  const [userId, setUserId] = useState<number | null>(currentUserId || null)
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
-  const [progressId, setProgressId] = useState<number | null>(null)
+  const [progressId, setProgressId] = useState<number | null>(
+    currentProgressId || null,
+  )
   const [productValidateErrorMessages, setProductValidateErrorMessages] =
     useState<string[]>([])
-  const [loadErrorMessages, setLoadErrorMessages] = useState<string[]>([])
+  const [selectOptionsLoadErrorMessages, setSelectOptionsLoadErrorMessages] =
+    useState<string[]>([])
 
   const [files, setFiles] = useState<File[]>([])
   const [fileTotalSize, setFileTotalSize] = useState<number>(0)
@@ -59,35 +101,50 @@ export default function ProductForm({
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const router = useRouter()
-
+  // ページ読み込み時に select 要素のオプションを取得
   useEffect(() => {
     handleGetSelectOptions()
   }, [])
 
+  // files が更新されたら previewFiles も更新する
   useEffect(() => {
-    const newPreviewFiles = files.map((file) => {
-      return {
-        url: URL.createObjectURL(file),
-        name: file.name,
-        type: file.type,
-        size: file.size,
-      }
-    })
+    const [newPreviewFiles, cleanUp] = generatePreviewFiles(files)
     setPreviewFiles(newPreviewFiles)
-
-    return () => {
-      newPreviewFiles.forEach((file) => URL.revokeObjectURL(file.url))
-    }
+    return cleanUp
   }, [files])
 
+  // 新規登録送信 or 編集送信
+  const handleSubmit = async () => {
+    const errors = validateProductForm(
+      productTypeId,
+      customerId,
+      productNumber,
+      productName,
+    )
+    if (errors.length > 0) {
+      setProductValidateErrorMessages(errors)
+      return
+    }
+
+    await submitButtonAction(
+      groupId,
+      productTypeId as number,
+      customerId as number,
+      productNumber,
+      productName,
+      userId as number,
+      progressId as number,
+      files,
+    )
+  }
+
+  // select 要素のオプションを取得
   const handleGetSelectOptions = async () => {
     try {
       const productTypesData =
         await getSelectOptions<ProductTypesApiResponse>('product-types')
       if (productTypesData.product_types.length > 0) {
         setProductTypes(productTypesData.product_types)
-        // setProductTypeId(productTypesData.product_types[0].id)
       } else {
         throw new Error('種別のデータがありません')
       }
@@ -96,7 +153,6 @@ export default function ProductForm({
         await getSelectOptions<CustomersApiResponse>('customers')
       if (customersData.customers.length > 0) {
         setCustomers(customersData.customers)
-        // setCustomerId(customersData.customers[0].id)
       } else {
         throw new Error('顧客のデータがありません')
       }
@@ -104,7 +160,6 @@ export default function ProductForm({
       const usersData = await getSelectOptions<UsersApiResponse>('users')
       if (usersData.users.length > 0) {
         setUsers(usersData.users)
-        // setUserId(usersData.users[0].id)
       } else {
         throw new Error('ユーザーのデータがありません')
       }
@@ -113,12 +168,11 @@ export default function ProductForm({
         await getSelectOptions<ProgressesApiResponse>('progresses')
       if (progressesData.progresses.length > 0) {
         setProgresses(progressesData.progresses)
-        // setProgressId(progressesData.progresses[0].id)
       } else {
         throw new Error('進捗のデータがありません')
       }
     } catch (error) {
-      setLoadErrorMessages((currentMessages) => {
+      setSelectOptionsLoadErrorMessages((currentMessages) => {
         if (error instanceof Error) {
           const newMessage = error.message
           return currentMessages.includes(newMessage)
@@ -134,102 +188,34 @@ export default function ProductForm({
     }
   }
 
-  const removeFile = (index: number) => {
-    const newSize = fileTotalSize - files[index].size
-    setFiles((prevFiles) => {
-      const newFiles = prevFiles.filter((_, i) => i !== index)
+  // files 更新
+  const handleUpdateFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newFiles = Array.from(e.target.files)
+      const newSize = calculateFilesTotalSize(files, newFiles)
+      const errors = checkFilesErrors(files, newFiles, newSize)
+
+      if (errors.length > 0) {
+        setFileValidateErrorMessages(errors)
+        return
+      }
+
+      setFiles((prevFiles) => [...prevFiles, ...newFiles])
       setFileTotalSize(newSize)
-      return newFiles
-    })
-    URL.revokeObjectURL(previewFiles[index].url)
-  }
-
-  const validateProductForm = () => {
-    const messages = []
-    if (productTypeId === null) {
-      messages.push('種別を選択してください')
-    }
-    if (productTypeId === 2 && customerId === null) {
-      messages.push('種別がOEMですが顧客名が選択されていません')
-    }
-    if (productNumber === '') {
-      messages.push('品番を入力してください')
-    }
-    if (productName === '') {
-      messages.push('品名を入力してください')
-    }
-    if (messages.length > 0) {
-      setProductValidateErrorMessages(messages)
-      return false
-    } else {
-      return true
+      e.target.value = ''
     }
   }
 
-  const validateFiles = (
-    validateFiles: File[],
-    fileLength: number,
-    fileTotalSize: number,
-  ) => {
-    const messages = new Set<string>()
-    if (fileLength > 10) {
-      messages.add(
-        'ファイル数が上限を超えるため追加できませんでした。一度にアップロードできるファイルは10個までです。',
-      )
-    }
-    if (fileTotalSize > 3000000) {
-      messages.add(
-        'ファイルの合計容量が上限を超えるため追加できませんでした。アップロードできるファイルの合計は3MB以下です。',
-      )
-    }
-
-    for (const validateFile of validateFiles) {
-      if (
-        !['image/jpeg', 'image/png', 'image/gif', 'application/pdf'].includes(
-          validateFile.type,
-        )
-      ) {
-        messages.add(
-          'サポート対象外のファイルがあるため追加できませんでした。アップロードできるファイルは画像 (JPEG, PNG, GIF) とPDFファイルです。',
-        )
-      }
-      if (validateFile.size > 1000000) {
-        messages.add(
-          '容量が上限を超えているファイルがあるため追加できませんでした。アップロードできるファイルの容量は1ファイル1MB以下です。',
-        )
-      }
-      if (files.some((file) => file.name === validateFile.name)) {
-        messages.add(
-          '同じ名前のファイルが既に存在するため追加できませんでした。',
-        )
-      }
-    }
-
-    const messageArray = Array.from(messages)
-    setFileValidateErrorMessages(messageArray)
-    return messages.size === 0
-  }
-
-  const handlePostProduct = () => {
-    if (!validateProductForm()) {
-      return
-    }
-    postProduct(
-      groupId,
-      productTypeId!,
-      customerId,
-      productNumber,
-      productName,
-      userId,
-      progressId,
+  // file 削除
+  const handleRemoveFile = (index: number) => {
+    const { newFiles, newSize, fileURLToRemove } = removeFile(
+      index,
       files,
+      previewFiles,
     )
-      .then((id) => {
-        router.push(`/product/${id}`)
-      })
-      .catch((error) => {
-        setLoadErrorMessages(error.message.split(','))
-      })
+    setFiles(newFiles)
+    setFileTotalSize(newSize)
+    URL.revokeObjectURL(fileURLToRemove)
   }
 
   return (
@@ -247,7 +233,7 @@ export default function ProductForm({
               initialValue="選択してください"
               objects={productTypes}
               propertyName="product_type"
-              currentValue={currentProductType}
+              currentSelectedId={currentProductTypeId}
             />
             <Select<CustomerApiResponse>
               title="お客様名"
@@ -258,7 +244,7 @@ export default function ProductForm({
               initialValue="選択してください"
               objects={customers}
               propertyName="customer_name"
-              currentValue={currentCustomerName}
+              currentSelectedId={currentCustomerId}
               disabled={productTypeId === 1}
             />
             <Input
@@ -286,7 +272,7 @@ export default function ProductForm({
               initialValue="未定"
               objects={users}
               propertyName="user_name"
-              currentValue={currentUserName}
+              currentSelectedId={currentUserId}
             />
             <Select<ProgressApiResponse>
               title="進捗"
@@ -298,7 +284,7 @@ export default function ProductForm({
               objects={progresses}
               propertyName="progress_status"
               propertyName2="progress_order"
-              currentValue={currentProgressStatus}
+              currentSelectedId={currentProgressId}
             />
           </form>
           <div className="flex-[5_5_0%]">
@@ -326,7 +312,7 @@ export default function ProductForm({
                           </p>
                           <button
                             onClick={() => {
-                              removeFile(index)
+                              handleRemoveFile(index)
                             }}
                           >
                             <X className="size-[28px]" />
@@ -345,7 +331,7 @@ export default function ProductForm({
                           </p>
                           <button
                             onClick={() => {
-                              removeFile(index)
+                              handleRemoveFile(index)
                             }}
                           >
                             <X className="size-[28px]" />
@@ -371,27 +357,7 @@ export default function ProductForm({
               <input
                 type="file"
                 multiple
-                onChange={(e) => {
-                  if (e.target.files) {
-                    const newFiles = Array.from(e.target.files)
-                    const newSize = newFiles.reduce(
-                      (total, file) => total + file.size,
-                      fileTotalSize,
-                    )
-                    if (
-                      validateFiles(
-                        newFiles,
-                        files.length + newFiles.length,
-                        newSize,
-                      )
-                    ) {
-                      setFiles((prevFiles) => [...prevFiles, ...newFiles])
-                      setFileTotalSize(newSize)
-                    }
-
-                    e.target.value = ''
-                  }
-                }}
+                onChange={handleUpdateFiles}
                 ref={fileInputRef}
                 className="hidden"
               />
@@ -413,15 +379,25 @@ export default function ProductForm({
           <ButtonWithIcon IconComponent={X} label="キャンセル" href="/" />
           <ButtonWithIcon
             IconComponent={Check}
-            label="登録"
-            onClick={handlePostProduct}
+            label={submitButtonTitle}
+            onClick={handleSubmit}
           />
+          {showDestroyButton && (
+            <ButtonWithIcon
+              IconComponent={Trash3}
+              label="削除"
+              onClick={destroyButtonAction}
+            />
+          )}
         </div>
-        {loadErrorMessages.length > 0 && (
-          <ErrorMessage errorMessages={loadErrorMessages} />
+        {selectOptionsLoadErrorMessages.length > 0 && (
+          <ErrorMessage errorMessages={selectOptionsLoadErrorMessages} />
         )}
         {productValidateErrorMessages.length > 0 && (
           <ErrorMessage errorMessages={productValidateErrorMessages} />
+        )}
+        {responseErrorMessages.length > 0 && (
+          <ErrorMessage errorMessages={responseErrorMessages} />
         )}
       </div>
       <footer className="absolute bottom-0 h-8 w-full"></footer>
