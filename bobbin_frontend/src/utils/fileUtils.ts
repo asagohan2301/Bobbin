@@ -1,16 +1,19 @@
 import type { PreviewFile } from '@/types/productTypes'
 import { validateFiles } from '@/utils/validateUtils'
 
+// newFiles を更新する前に合計サイズを検証する
+// 既存の newFiles と、追加しようとしているファイルの合計サイズを返す
 export const calculateFilesTotalSize = (
-  existingFiles: File[],
-  newFiles: File[],
+  currentFiles: File[],
+  pendingFiles: File[],
 ) => {
-  return newFiles.reduce(
+  return pendingFiles.reduce(
     (total, file) => total + file.size,
-    existingFiles.reduce((total, file) => total + file.size, 0),
+    currentFiles.reduce((total, file) => total + file.size, 0),
   )
 }
 
+// 修正！！
 export const checkFilesErrors = (
   existingFiles: File[],
   newFiles: File[],
@@ -24,20 +27,17 @@ export const checkFilesErrors = (
   )
 }
 
-export const removeFile = (
+export const removeNewFile = (
   targetFileIndex: number,
-  files: File[],
+  currentFiles: File[],
   previewFiles: PreviewFile[],
 ) => {
-  const newSize = files.reduce((acc, file, i) => {
-    return i === targetFileIndex ? acc : acc + file.size
-  }, 0)
-  const newFiles = files.filter((_, i) => i !== targetFileIndex)
+  const updatedFiles = currentFiles.filter((_, i) => i !== targetFileIndex)
   const fileURLToRemove = previewFiles[targetFileIndex].url
-  return { newFiles, newSize, fileURLToRemove }
+  return { updatedFiles, fileURLToRemove }
 }
 
-// files が更新されたら previewFiles と クリーンアップ関数を返す
+// newFiles が更新されたら previewFiles と クリーンアップ関数を返す
 export const generatePreviewFiles = (
   files: File[],
 ): [PreviewFile[], () => void] => {

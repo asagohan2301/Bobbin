@@ -12,7 +12,7 @@ export type Product = {
   progress_id: number
   progress_order: number
   progress_status: string
-  files: File[] | []
+  files: FileApiResponse[] | []
 }
 export type ProductApiResponse = {
   product: Product
@@ -54,10 +54,12 @@ export type ProgressesApiResponse = {
   progresses: ProgressApiResponse[]
 }
 
-type File = {
+export type FileApiResponse = {
   id: number
   url: string
-  content_type: string
+  name: string
+  type: string
+  size: number
 }
 
 export type PreviewFile = {

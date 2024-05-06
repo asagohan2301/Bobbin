@@ -93,9 +93,7 @@ export default function Product({ params }: { params: Params }) {
             <>
               {product.files.map((file, index) => {
                 if (
-                  ['image/jpeg', 'image/png', 'image/gif'].includes(
-                    file.content_type,
-                  )
+                  ['image/jpeg', 'image/png', 'image/gif'].includes(file.type)
                 ) {
                   return (
                     <div
@@ -105,7 +103,7 @@ export default function Product({ params }: { params: Params }) {
                       <img src={file.url} alt={`file-${file.id}`} />
                     </div>
                   )
-                } else if (file.content_type == 'application/pdf') {
+                } else if (file.type === 'application/pdf') {
                   return (
                     <div key={file.id}>
                       <div className="mb-2 border-2 border-gray-400">

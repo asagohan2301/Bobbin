@@ -146,3 +146,18 @@ export const updateProgressStatus = async (
     throw new Error('進捗の更新に失敗しました')
   }
 }
+
+export const destroyFile = async (productId: number, fileId: number) => {
+  const res = await fetch(
+    `${apiEndpoint}/api/products/${productId}/files/${fileId}`,
+    {
+      method: 'DELETE',
+    },
+  )
+  if (res.ok) {
+    return true
+  } else {
+    const data: ErrorsApiResponse = await res.json()
+    throw new Error(data.errors.join(','))
+  }
+}

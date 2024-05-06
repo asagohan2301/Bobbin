@@ -4,10 +4,11 @@ import ButtonWithIcon from '@/components/ButtonWithIcon'
 import ErrorMessage from '@/components/ErrorMessage'
 import Input from '@/components/Input'
 import Select from '@/components/Select'
-import { getSelectOptions } from '@/services/productService'
+import { destroyFile, getSelectOptions } from '@/services/productService'
 import type {
   CustomerApiResponse,
   CustomersApiResponse,
+  FileApiResponse,
   PreviewFile,
   ProductTypeApiResponse,
   ProductTypesApiResponse,
@@ -20,7 +21,7 @@ import {
   calculateFilesTotalSize,
   checkFilesErrors,
   generatePreviewFiles,
-  removeFile,
+  removeNewFile,
 } from '@/utils/fileUtils'
 import { validateProductForm } from '@/utils/validateUtils'
 import { useEffect, useRef, useState } from 'react'
@@ -28,12 +29,14 @@ import { Check, FileEarmarkPlus, Trash3, X } from 'react-bootstrap-icons'
 
 type ProductFormProps = {
   title: string
+  productId?: number
   currentProductTypeId?: number
   currentCustomerId?: number
   currentProductNumber?: string
   currentProductName?: string
   currentUserId?: number
   currentProgressId?: number
+  currentExistingFiles?: FileApiResponse[] | []
   submitButtonTitle: string
   submitButtonAction: (
     groupId: number,
@@ -53,12 +56,14 @@ type ProductFormProps = {
 export default function ProductForm(props: ProductFormProps) {
   const {
     title,
+    productId,
     currentProductTypeId,
     currentCustomerId,
     currentProductNumber,
     currentProductName,
     currentUserId,
     currentProgressId,
+    currentExistingFiles,
     submitButtonTitle,
     submitButtonAction,
     showDestroyButton,
@@ -87,14 +92,20 @@ export default function ProductForm(props: ProductFormProps) {
   const [progressId, setProgressId] = useState<number | null>(
     currentProgressId || null,
   )
-  const [productValidateErrorMessages, setProductValidateErrorMessages] =
-    useState<string[]>([])
+
+  const [existingFiles, setExistingFiles] = useState<FileApiResponse[]>(
+    currentExistingFiles || [],
+  )
+  const [existingFilesTotalSize, setExistingFilesTotalSize] =
+    useState<number>(0)
+  const [newFiles, setNewFiles] = useState<File[]>([])
+  const [newFilesTotalSize, setNewFilesTotalSize] = useState<number>(0)
+  const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([])
+
   const [selectOptionsLoadErrorMessages, setSelectOptionsLoadErrorMessages] =
     useState<string[]>([])
-
-  const [files, setFiles] = useState<File[]>([])
-  const [fileTotalSize, setFileTotalSize] = useState<number>(0)
-  const [previewFiles, setPreviewFiles] = useState<PreviewFile[]>([])
+  const [productValidateErrorMessages, setProductValidateErrorMessages] =
+    useState<string[]>([])
   const [fileValidateErrorMessages, setFileValidateErrorMessages] = useState<
     string[]
   >([])
@@ -106,12 +117,24 @@ export default function ProductForm(props: ProductFormProps) {
     handleGetSelectOptions()
   }, [])
 
-  // files が更新されたら previewFiles も更新する
+  // newFiles が更新されたら previewFiles と newFilesTotalSize を更新する
   useEffect(() => {
-    const [newPreviewFiles, cleanUp] = generatePreviewFiles(files)
-    setPreviewFiles(newPreviewFiles)
+    const [pendingPreviewFiles, cleanUp] = generatePreviewFiles(newFiles)
+    setPreviewFiles(pendingPreviewFiles)
+    const filesTotalSize = newFiles.reduce((total, file) => {
+      return total + file.size
+    }, 0)
+    setNewFilesTotalSize(filesTotalSize)
     return cleanUp
-  }, [files])
+  }, [newFiles])
+
+  // existingFiles が更新されたら existingFilesTotalSize を更新する
+  useEffect(() => {
+    const filesTotalSize = existingFiles.reduce((total, file) => {
+      return total + file.size
+    }, 0)
+    setExistingFilesTotalSize(filesTotalSize)
+  }, [existingFiles])
 
   // 新規登録送信 or 編集送信
   const handleSubmit = async () => {
@@ -134,7 +157,7 @@ export default function ProductForm(props: ProductFormProps) {
       productName,
       userId as number,
       progressId as number,
-      files,
+      newFiles,
     )
   }
 
@@ -188,38 +211,59 @@ export default function ProductForm(props: ProductFormProps) {
     }
   }
 
-  // files 更新
+  // newFiles 更新
   const handleUpdateFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const newFiles = Array.from(e.target.files)
-      const newSize = calculateFilesTotalSize(files, newFiles)
-      const errors = checkFilesErrors(files, newFiles, newSize)
+      const pendingNewFiles = Array.from(e.target.files)
+      const newSize = calculateFilesTotalSize(newFiles, pendingNewFiles)
+      const errors = checkFilesErrors(newFiles, pendingNewFiles, newSize)
 
       if (errors.length > 0) {
         setFileValidateErrorMessages(errors)
         return
       }
 
-      setFiles((prevFiles) => [...prevFiles, ...newFiles])
-      setFileTotalSize(newSize)
+      setNewFiles((currentNewFiles) => [...currentNewFiles, ...pendingNewFiles])
       e.target.value = ''
     }
   }
 
-  // file 削除
-  const handleRemoveFile = (index: number) => {
-    const { newFiles, newSize, fileURLToRemove } = removeFile(
+  // newFile 削除
+  const handleRemoveNewFile = (index: number) => {
+    const { updatedFiles, fileURLToRemove } = removeNewFile(
       index,
-      files,
+      newFiles,
       previewFiles,
     )
-    setFiles(newFiles)
-    setFileTotalSize(newSize)
+    setNewFiles(updatedFiles)
     URL.revokeObjectURL(fileURLToRemove)
+  }
+
+  // existingFile 削除
+  const handleDestroyExistingFile = async (fileId: number) => {
+    if (!productId) {
+      return
+    }
+
+    try {
+      await destroyFile(productId, fileId)
+      setExistingFiles((currentFiles) =>
+        currentFiles.filter((file) => file.id !== fileId),
+      )
+    } catch (error) {
+      console.log('ファイルの削除に失敗しました')
+    }
   }
 
   return (
     <div className="h-screen">
+      <button
+        onClick={() => {
+          console.log(currentExistingFiles)
+        }}
+      >
+        test
+      </button>
       <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
         <h1 className="mb-8 text-2xl">{title}</h1>
         <div className="flex gap-20">
@@ -290,6 +334,32 @@ export default function ProductForm(props: ProductFormProps) {
           <div className="flex-[5_5_0%]">
             <p className="mb-2">ファイル一覧</p>
             <div className="mb-3 h-auto min-h-[200px] border-2 border-gray-400">
+              {existingFiles.length > 0 && (
+                <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
+                  {existingFiles.map((file) => {
+                    return (
+                      <div key={file.id} className="flex-[0_0_19.1%]">
+                        <img
+                          src={file.url}
+                          alt=""
+                          className="mb-1 cursor-pointer border"
+                        />
+                        <p className="text-xs">{file.name}</p>
+                        <p className="text-xs">
+                          {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
+                        </p>
+                        <button
+                          onClick={() => {
+                            handleDestroyExistingFile(file.id)
+                          }}
+                        >
+                          <X className="size-[28px]" />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
               {previewFiles.length > 0 && (
                 <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
                   {previewFiles.map((file, index) => {
@@ -312,7 +382,7 @@ export default function ProductForm(props: ProductFormProps) {
                           </p>
                           <button
                             onClick={() => {
-                              handleRemoveFile(index)
+                              handleRemoveNewFile(index)
                             }}
                           >
                             <X className="size-[28px]" />
@@ -331,7 +401,7 @@ export default function ProductForm(props: ProductFormProps) {
                           </p>
                           <button
                             onClick={() => {
-                              handleRemoveFile(index)
+                              handleRemoveNewFile(index)
                             }}
                           >
                             <X className="size-[28px]" />
@@ -342,7 +412,7 @@ export default function ProductForm(props: ProductFormProps) {
                   })}
                 </div>
               )}
-              <p className="p-2 text-right text-sm">{`合計 ${(fileTotalSize / 1024 / 1024).toFixed(2)} MB / 最大 3MB`}</p>
+              <p className="p-2 text-right text-sm">{`合計 ${((existingFilesTotalSize + newFilesTotalSize) / 1024 / 1024).toFixed(2)} MB / 最大 3MB`}</p>
             </div>
             <div className="flex gap-3">
               <ButtonWithIcon

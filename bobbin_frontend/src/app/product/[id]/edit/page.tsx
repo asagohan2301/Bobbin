@@ -87,12 +87,14 @@ export default function Edit({ params }: { params: Params }) {
     <div>
       <ProductForm
         title="登録情報修正"
+        productId={product.id}
         currentProductTypeId={product.product_type_id}
         currentCustomerId={product.customer_id}
         currentProductNumber={product.product_number}
         currentProductName={product.product_name}
         currentUserId={product.user_id}
         currentProgressId={product.progress_id}
+        currentExistingFiles={product.files}
         submitButtonTitle="編集内容を確定して保存"
         submitButtonAction={handleUpdateProduct}
         showDestroyButton={true}

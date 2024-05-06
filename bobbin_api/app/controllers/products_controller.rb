@@ -31,6 +31,7 @@ class ProductsController < ApplicationController
   def update
     ActiveRecord::Base.transaction do
       @product.update!(product_params)
+      @product.files.attach(params[:files]) if params[:files].present?
     end
 
     render json: { product: format_product_response(@product) }, status: :ok
@@ -58,7 +59,9 @@ class ProductsController < ApplicationController
         {
           id: file.id,
           url: url_for(file),
-          content_type: file.content_type
+          name: file.filename.to_s,
+          type: file.content_type,
+          size: file.byte_size
         }
       end
     end
