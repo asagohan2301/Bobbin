@@ -72,10 +72,12 @@ export default function Product({ params }: { params: Params }) {
                 <span className="text-sm">種別：</span>
                 {product.product_type}
               </li>
-              <li>
-                <span className="text-sm">お客様名：</span>
-                {product.customer_name}
-              </li>
+              {product.customer_name && (
+                <li>
+                  <span className="text-sm">お客様名：</span>
+                  {product.customer_name}
+                </li>
+              )}
               <li>
                 <span className="text-sm">担当者：</span>
                 {product.user_name}

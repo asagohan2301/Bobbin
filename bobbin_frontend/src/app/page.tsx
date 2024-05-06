@@ -211,7 +211,9 @@ export default function Home() {
                       {product.product_number}
                     </div>
                     <div className="flex-[3_3_0%]">{product.product_type}</div>
-                    <div className="flex-[3_3_0%]">{product.customer_name}</div>
+                    <div className="flex-[3_3_0%]">
+                      {product.customer_name ? product.customer_name : '-'}
+                    </div>
                     <div className="flex flex-[3_3_0%] items-center">
                       <Image
                         src="/bobbin_icon.png"
