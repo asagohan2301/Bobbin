@@ -119,20 +119,17 @@ export default function ProductForm(props: ProductFormProps) {
 
   // newFiles が更新されたら previewFiles と newFilesTotalSize を更新する
   useEffect(() => {
+    const filesTotalSize = calculateFilesTotalSize(newFiles)
+    setNewFilesTotalSize(filesTotalSize)
+
     const [pendingPreviewFiles, cleanUp] = generatePreviewFiles(newFiles)
     setPreviewFiles(pendingPreviewFiles)
-    const filesTotalSize = newFiles.reduce((total, file) => {
-      return total + file.size
-    }, 0)
-    setNewFilesTotalSize(filesTotalSize)
     return cleanUp
   }, [newFiles])
 
   // existingFiles が更新されたら existingFilesTotalSize を更新する
   useEffect(() => {
-    const filesTotalSize = existingFiles.reduce((total, file) => {
-      return total + file.size
-    }, 0)
+    const filesTotalSize = calculateFilesTotalSize(existingFiles)
     setExistingFilesTotalSize(filesTotalSize)
   }, [existingFiles])
 
@@ -215,8 +212,14 @@ export default function ProductForm(props: ProductFormProps) {
   const handleUpdateFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const pendingNewFiles = Array.from(e.target.files)
-      const newSize = calculateFilesTotalSize(newFiles, pendingNewFiles)
-      const errors = checkFilesErrors(newFiles, pendingNewFiles, newSize)
+
+      const errors = checkFilesErrors(
+        existingFiles,
+        newFiles,
+        pendingNewFiles,
+        existingFilesTotalSize,
+        newFilesTotalSize,
+      )
 
       if (errors.length > 0) {
         setFileValidateErrorMessages(errors)
@@ -257,13 +260,6 @@ export default function ProductForm(props: ProductFormProps) {
 
   return (
     <div className="h-screen">
-      <button
-        onClick={() => {
-          console.log(currentExistingFiles)
-        }}
-      >
-        test
-      </button>
       <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
         <h1 className="mb-8 text-2xl">{title}</h1>
         <div className="flex gap-20">
@@ -435,9 +431,9 @@ export default function ProductForm(props: ProductFormProps) {
                 ・アップロードできるファイルは、画像 (JPEG, PNG, GIF)
                 とPDFファイルです。
                 <br />
-                ・各ファイルの容量は1MBまで、合計3MBまでです。
+                ・ファイル数: 合計10個まで
                 <br />
-                ・一度にアップロードできるファイルは最大10個です。
+                ・ファイル容量: 各1MBまで、合計3MBまで
               </p>
             </div>
             {fileValidateErrorMessages.length > 0 && (

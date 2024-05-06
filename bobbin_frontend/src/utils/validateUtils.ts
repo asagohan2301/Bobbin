@@ -1,3 +1,5 @@
+import type { FileApiResponse } from '@/types/productTypes'
+
 // 製品新規登録送信前 / 製品編集送信前
 export const validateProductForm = (
   productTypeId: number | null,
@@ -23,41 +25,48 @@ export const validateProductForm = (
 
 // ファイル追加前
 export const validateFiles = (
-  existingFiles: File[],
-  validateFiles: File[],
-  fileLength: number,
-  fileTotalSize: number,
+  existingFiles: FileApiResponse[],
+  currentNewFiles: File[],
+  pendingNewFiles: File[],
+  filesTotalLength: number,
+  filesTotalSize: number,
 ) => {
   const errorMessages = new Set<string>()
-  if (fileLength > 10) {
+  if (filesTotalLength > 10) {
     errorMessages.add(
-      'ファイル数が上限を超えるため追加できませんでした。一度にアップロードできるファイルは10個までです。',
+      'ファイルの合計数が上限を超えています。アップロードできるファイルは合計10個以下です。',
     )
   }
-  if (fileTotalSize > 3000000) {
+  if (filesTotalSize > 3000000) {
     errorMessages.add(
-      'ファイルの合計容量が上限を超えるため追加できませんでした。アップロードできるファイルの合計は3MB以下です。',
+      'ファイルの合計容量が上限を超えています。アップロードできるファイルは合計3MB以下です。',
     )
   }
 
-  for (const validateFile of validateFiles) {
+  const existingFileNames = new Set(existingFiles.map((file) => file.name))
+  const currentNewFileNames = new Set(currentNewFiles.map((file) => file.name))
+
+  for (const file of pendingNewFiles) {
     if (
       !['image/jpeg', 'image/png', 'image/gif', 'application/pdf'].includes(
-        validateFile.type,
+        file.type,
       )
     ) {
       errorMessages.add(
-        'サポート対象外のファイルがあるため追加できませんでした。アップロードできるファイルは画像 (JPEG, PNG, GIF) とPDFファイルです。',
+        `${file.name}はサポート対象外のファイルです。アップロードできるファイルは画像 (JPEG, PNG, GIF) とPDFファイルです。`,
       )
     }
-    if (validateFile.size > 1000000) {
+    if (file.size > 1000000) {
       errorMessages.add(
-        '容量が上限を超えているファイルがあるため追加できませんでした。アップロードできるファイルの容量は1ファイル1MB以下です。',
+        `${file.name}は1MBを超えているためアップロードできません。各ファイルの容量は1MB以下にしてください。`,
       )
     }
-    if (existingFiles.some((file) => file.name === validateFile.name)) {
+    if (
+      currentNewFileNames.has(file.name) ||
+      existingFileNames.has(file.name)
+    ) {
       errorMessages.add(
-        '同じ名前のファイルが既に存在するため追加できませんでした。',
+        `同じ名前のファイルが存在するため、${file.name}はアップロードできません。`,
       )
     }
   }

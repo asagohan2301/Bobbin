@@ -1,29 +1,33 @@
-import type { PreviewFile } from '@/types/productTypes'
+import type { FileApiResponse, PreviewFile } from '@/types/productTypes'
 import { validateFiles } from '@/utils/validateUtils'
 
-// newFiles を更新する前に合計サイズを検証する
-// 既存の newFiles と、追加しようとしているファイルの合計サイズを返す
-export const calculateFilesTotalSize = (
-  currentFiles: File[],
-  pendingFiles: File[],
-) => {
-  return pendingFiles.reduce(
-    (total, file) => total + file.size,
-    currentFiles.reduce((total, file) => total + file.size, 0),
-  )
+export const calculateFilesTotalSize = (files: File[] | FileApiResponse[]) => {
+  const filesTotalSize = files.reduce((total, file) => {
+    return total + file.size
+  }, 0)
+  return filesTotalSize
 }
 
-// 修正！！
 export const checkFilesErrors = (
-  existingFiles: File[],
-  newFiles: File[],
-  fileTotalSize: number,
+  existingFiles: FileApiResponse[],
+  currentNewFiles: File[],
+  pendingNewFiles: File[],
+  existingFilesTotalSize: number,
+  newFilesTotalSize: number,
 ) => {
+  const filesTotalLength =
+    existingFiles.length + currentNewFiles.length + pendingNewFiles.length
+  const filesTotalSize =
+    existingFilesTotalSize +
+    newFilesTotalSize +
+    calculateFilesTotalSize(pendingNewFiles)
+
   return validateFiles(
     existingFiles,
-    newFiles,
-    existingFiles.length + newFiles.length,
-    fileTotalSize,
+    currentNewFiles,
+    pendingNewFiles,
+    filesTotalLength,
+    filesTotalSize,
   )
 }
 
