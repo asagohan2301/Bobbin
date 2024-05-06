@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   scope '/api' do
     resources :products do
-      resources :files, only: [] do
+      resources :files, only: [:destroy] do
         member do
           get 'proxy', to: 'files#proxy'
         end

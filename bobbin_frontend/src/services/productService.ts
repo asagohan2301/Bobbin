@@ -53,11 +53,6 @@ export const postProduct = async (
     })
   }
 
-  // 確認用
-  // for (const [key, value] of product.entries()) {
-  //   console.log(`${key}: ${value}`)
-  // }
-
   const res = await fetch(`${apiEndpoint}/api/products`, {
     method: 'POST',
     body: productFormData,
@@ -65,6 +60,46 @@ export const postProduct = async (
   if (res.ok) {
     const { id } = await res.json()
     return id
+  } else {
+    const data: ErrorsApiResponse = await res.json()
+    throw new Error(data.errors.join(','))
+  }
+}
+
+export const updateProduct = async (
+  productId: string,
+  groupId: number,
+  productTypeId: number,
+  customerId: number | null,
+  productNumber: string,
+  productName: string,
+  userId: number | null,
+  progressId: number | null,
+  files: File[],
+): Promise<string> => {
+  const productFormData = new FormData()
+
+  productFormData.append('group_id', groupId.toString())
+  productFormData.append('product_type_id', productTypeId.toString())
+  customerId && productFormData.append('customer_id', customerId.toString())
+  productFormData.append('product_number', productNumber)
+  productFormData.append('product_name', productName)
+  userId && productFormData.append('user_id', userId.toString())
+  progressId && productFormData.append('progress_id', progressId.toString())
+
+  if (files.length > 0) {
+    files.forEach((file) => {
+      productFormData.append(`files[]`, file)
+    })
+  }
+
+  const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
+    method: 'PUT',
+    body: productFormData,
+  })
+  if (res.ok) {
+    const data = await res.json()
+    return data.product.id
   } else {
     const data: ErrorsApiResponse = await res.json()
     throw new Error(data.errors.join(','))
@@ -109,5 +144,20 @@ export const updateProgressStatus = async (
     return data
   } else {
     throw new Error('進捗の更新に失敗しました')
+  }
+}
+
+export const destroyFile = async (productId: number, fileId: number) => {
+  const res = await fetch(
+    `${apiEndpoint}/api/products/${productId}/files/${fileId}`,
+    {
+      method: 'DELETE',
+    },
+  )
+  if (res.ok) {
+    return true
+  } else {
+    const data: ErrorsApiResponse = await res.json()
+    throw new Error(data.errors.join(','))
   }
 }

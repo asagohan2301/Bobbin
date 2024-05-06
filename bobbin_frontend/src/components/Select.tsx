@@ -1,12 +1,13 @@
 type SelectProps<T> = {
   title: string
   elementName: string
-  initialValue: string
+  initialValue?: string
   onChange: React.ChangeEventHandler<HTMLSelectElement>
   objects: T[]
   propertyName: keyof T
   propertyName2?: keyof T
   disabled?: boolean
+  currentSelectedId?: number
 }
 
 export default function Select<T extends { id: number }>(
@@ -21,6 +22,7 @@ export default function Select<T extends { id: number }>(
     propertyName,
     propertyName2,
     disabled,
+    currentSelectedId,
   } = props
   return (
     <div className="mb-4 flex flex-col">
@@ -40,6 +42,7 @@ export default function Select<T extends { id: number }>(
             <option
               value={object.id}
               key={object.id}
+              selected={object.id === currentSelectedId ? true : undefined}
               className="border-b-2 p-2"
             >
               {String(displayText)}

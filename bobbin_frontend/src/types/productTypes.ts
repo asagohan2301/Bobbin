@@ -1,14 +1,18 @@
 export type Product = {
   id: number
   group_name: string
+  product_type_id: number
   product_type: string
+  customer_id: number
   customer_name: string
   product_number: string
   product_name: string
+  user_id: number
   user_name: string
+  progress_id: number
   progress_order: number
   progress_status: string
-  files: File[] | []
+  files: FileApiResponse[] | []
 }
 export type ProductApiResponse = {
   product: Product
@@ -50,10 +54,19 @@ export type ProgressesApiResponse = {
   progresses: ProgressApiResponse[]
 }
 
-type File = {
+export type FileApiResponse = {
   id: number
   url: string
-  content_type: string
+  name: string
+  type: string
+  size: number
+}
+
+export type PreviewFile = {
+  url: string
+  name: string
+  type: string
+  size: number
 }
 
 export type FilterApiResponse = {
