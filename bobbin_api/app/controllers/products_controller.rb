@@ -75,8 +75,8 @@ class ProductsController < ApplicationController
       customer_name: product.customer&.customer_name,
       product_number: product.product_number,
       product_name: product.product_name,
-      user_id: product.user.id,
-      user_name: product.user.user_name,
+      user_id: product.user&.id,
+      user_name: product.user&.user_name,
       progress_id: product.progress.id,
       progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
@@ -85,7 +85,7 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.permit(
+    permitted_params = params.permit(
       :id,
       :group_id,
       :product_type_id,
@@ -95,6 +95,9 @@ class ProductsController < ApplicationController
       :user_id,
       :progress_id
     )
+    permitted_params[:customer_id] = nil if permitted_params[:customer_id] == 'null'
+    permitted_params[:user_id] = nil if permitted_params[:user_id] == 'null'
+    permitted_params
   end
 
   # エラー処理

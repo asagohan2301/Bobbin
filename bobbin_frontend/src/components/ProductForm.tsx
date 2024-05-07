@@ -31,20 +31,20 @@ type ProductFormProps = {
   title: string
   productId?: number
   currentProductTypeId?: number
-  currentCustomerId?: number
+  currentCustomerId?: number | null
   currentProductNumber?: string
   currentProductName?: string
-  currentUserId?: number
+  currentUserId?: number | null
   currentProgressId?: number
   currentExistingFiles?: FileApiResponse[] | []
   submitButtonTitle: string
   submitButtonAction: (
     groupId: number,
     productTypeId: number,
-    customerId: number,
+    customerId: number | null,
     productNumber: string,
     productName: string,
-    userId: number,
+    userId: number | null,
     progressId: number,
     files: File[],
   ) => Promise<void>
@@ -149,10 +149,10 @@ export default function ProductForm(props: ProductFormProps) {
     await submitButtonAction(
       groupId,
       productTypeId as number,
-      customerId as number,
+      customerId,
       productNumber,
       productName,
-      userId as number,
+      userId,
       progressId as number,
       newFiles,
     )
@@ -188,6 +188,7 @@ export default function ProductForm(props: ProductFormProps) {
         await getSelectOptions<ProgressesApiResponse>('progresses')
       if (progressesData.progresses.length > 0) {
         setProgresses(progressesData.progresses)
+        setProgressId(progressesData.progresses[0].id)
       } else {
         throw new Error('進捗のデータがありません')
       }
@@ -268,23 +269,34 @@ export default function ProductForm(props: ProductFormProps) {
               title="種別"
               elementName="productType"
               onChange={(e) => {
-                setProductTypeId(parseInt(e.target.value))
+                if (e.target.value === 'null') {
+                  setProductTypeId(null)
+                } else {
+                  setProductTypeId(parseInt(e.target.value))
+                }
+                if (parseInt(e.target.value) === 1) {
+                  setCustomerId(null)
+                }
               }}
               initialValue="選択してください"
               objects={productTypes}
               propertyName="product_type"
-              currentSelectedId={currentProductTypeId}
+              currentSelectedId={productTypeId}
             />
             <Select<CustomerApiResponse>
               title="お客様名"
               elementName="customer"
               onChange={(e) => {
-                setCustomerId(parseInt(e.target.value))
+                if (e.target.value === 'null') {
+                  setCustomerId(null)
+                } else {
+                  setCustomerId(parseInt(e.target.value))
+                }
               }}
-              initialValue="選択してください"
+              initialValue="-"
               objects={customers}
               propertyName="customer_name"
-              currentSelectedId={currentCustomerId}
+              currentSelectedId={customerId}
               disabled={productTypeId === 1}
             />
             <Input
@@ -307,12 +319,16 @@ export default function ProductForm(props: ProductFormProps) {
               title="担当者"
               elementName="user"
               onChange={(e) => {
-                setUserId(parseInt(e.target.value))
+                if (e.target.value === 'null') {
+                  setUserId(null)
+                } else {
+                  setUserId(parseInt(e.target.value))
+                }
               }}
               initialValue="未定"
               objects={users}
               propertyName="user_name"
-              currentSelectedId={currentUserId}
+              currentSelectedId={userId}
             />
             <Select<ProgressApiResponse>
               title="進捗"
@@ -320,11 +336,10 @@ export default function ProductForm(props: ProductFormProps) {
               onChange={(e) => {
                 setProgressId(parseInt(e.target.value))
               }}
-              initialValue="未定"
               objects={progresses}
               propertyName="progress_status"
               propertyName2="progress_order"
-              currentSelectedId={currentProgressId}
+              currentSelectedId={progressId}
             />
           </form>
           <div className="flex-[5_5_0%]">

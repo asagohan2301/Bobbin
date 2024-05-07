@@ -7,7 +7,7 @@ type SelectProps<T> = {
   propertyName: keyof T
   propertyName2?: keyof T
   disabled?: boolean
-  currentSelectedId?: number
+  currentSelectedId?: number | null
 }
 
 export default function Select<T extends { id: number }>(
@@ -33,7 +33,7 @@ export default function Select<T extends { id: number }>(
         className="rounded border-2 border-gray-500 p-2"
         disabled={disabled}
       >
-        <option>{initialValue}</option>
+        {initialValue && <option value="null">{initialValue}</option>}
         {objects.map((object) => {
           const displayText = propertyName2
             ? `${object[propertyName2]}: ${object[propertyName]}`

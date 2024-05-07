@@ -15,10 +15,10 @@ export default function New() {
   const handlePostProduct = async (
     groupId: number,
     productTypeId: number,
-    customerId: number,
+    customerId: number | null,
     productNumber: string,
     productName: string,
-    userId: number,
+    userId: number | null,
     progressId: number,
     files: File[],
   ) => {

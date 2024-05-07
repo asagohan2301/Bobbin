@@ -80,7 +80,7 @@ export default function Product({ params }: { params: Params }) {
               )}
               <li>
                 <span className="text-sm">担当者：</span>
-                {product.user_name}
+                {product.user_name || '未定'}
               </li>
               <li>
                 <span className="text-sm">進捗：</span>

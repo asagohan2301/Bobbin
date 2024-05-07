@@ -214,16 +214,20 @@ export default function Home() {
                     <div className="flex-[3_3_0%]">
                       {product.customer_name ? product.customer_name : '-'}
                     </div>
-                    <div className="flex flex-[3_3_0%] items-center">
-                      <Image
-                        src="/bobbin_icon.png"
-                        width={36}
-                        height={36}
-                        alt="bobbin-icon"
-                        className="mr-2"
-                      />
-                      <div>{product.user_name}</div>
-                    </div>
+                    {product.user_name ? (
+                      <div className="flex flex-[3_3_0%] items-center">
+                        <Image
+                          src="/bobbin_icon.png"
+                          width={36}
+                          height={36}
+                          alt="bobbin-icon"
+                          className="mr-2"
+                        />
+                        <div>{product.user_name}</div>
+                      </div>
+                    ) : (
+                      <div className="flex-[3_3_0%]">未定</div>
+                    )}
                     <div className="relative flex-[4_4_0%]">
                       <div
                         className="mb-2 flex items-center"

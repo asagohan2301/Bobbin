@@ -41,10 +41,18 @@ export const postProduct = async (
 
   productFormData.append('group_id', groupId.toString())
   productFormData.append('product_type_id', productTypeId.toString())
-  customerId && productFormData.append('customer_id', customerId.toString())
+  if (customerId === null) {
+    productFormData.append('customer_id', 'null')
+  } else {
+    productFormData.append('customer_id', customerId.toString())
+  }
   productFormData.append('product_number', productNumber)
   productFormData.append('product_name', productName)
-  userId && productFormData.append('user_id', userId.toString())
+  if (userId === null) {
+    productFormData.append('user_id', 'null')
+  } else {
+    productFormData.append('user_id', userId.toString())
+  }
   progressId && productFormData.append('progress_id', progressId.toString())
 
   if (files.length > 0) {
@@ -81,10 +89,19 @@ export const updateProduct = async (
 
   productFormData.append('group_id', groupId.toString())
   productFormData.append('product_type_id', productTypeId.toString())
-  customerId && productFormData.append('customer_id', customerId.toString())
+  if (customerId === null) {
+    productFormData.append('customer_id', 'null')
+  } else {
+    productFormData.append('customer_id', customerId.toString())
+  }
   productFormData.append('product_number', productNumber)
   productFormData.append('product_name', productName)
-  userId && productFormData.append('user_id', userId.toString())
+  console.log(userId)
+  if (userId === null) {
+    productFormData.append('user_id', 'null')
+  } else {
+    productFormData.append('user_id', userId.toString())
+  }
   progressId && productFormData.append('progress_id', progressId.toString())
 
   if (files.length > 0) {
