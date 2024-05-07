@@ -25,7 +25,11 @@ class ProductsController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { errors: [e.message] }, status: :unprocessable_entity
+    if e.message.include?('Duplicate entry')
+      handle_unique_constraint_violation(e)
+    else
+      render json: { errors: [e.message] }, status: :unprocessable_entity
+    end
   end
 
   def update
@@ -38,7 +42,11 @@ class ProductsController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { errors: [e.message] }, status: :unprocessable_entity
+    if e.message.include?('Duplicate entry')
+      handle_unique_constraint_violation(e)
+    else
+      render json: { errors: [e.message] }, status: :unprocessable_entity
+    end
   end
 
   def destroy
@@ -71,12 +79,13 @@ class ProductsController < ApplicationController
       group_name: product.group.group_name,
       product_type_id: product.product_type.id,
       product_type: product.product_type.product_type,
-      customer_id: product.customer.id,
-      customer_name: product.customer.customer_name,
+      customer_id: product.customer&.id,
+      customer_name: product.customer&.customer_name,
       product_number: product.product_number,
       product_name: product.product_name,
-      user_id: product.user.id,
-      user_name: product.user.user_name,
+      user_id: product.user&.id,
+      user_first_name: product.user&.first_name,
+      user_last_name: product.user&.last_name,
       progress_id: product.progress.id,
       progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
@@ -85,7 +94,7 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.permit(
+    permitted_params = params.permit(
       :id,
       :group_id,
       :product_type_id,
@@ -95,6 +104,9 @@ class ProductsController < ApplicationController
       :user_id,
       :progress_id
     )
+    permitted_params[:customer_id] = nil if permitted_params[:customer_id] == 'null'
+    permitted_params[:user_id] = nil if permitted_params[:user_id] == 'null'
+    permitted_params
   end
 
   # エラー処理
@@ -105,7 +117,15 @@ class ProductsController < ApplicationController
   end
 
   # ユニークキー制約違反 (データベースレベル)
-  def handle_unique_constraint_violation
-    render json: { errors: ['同じ品番または品名がすでに存在しています'] }, status: :unprocessable_entity
+  def handle_unique_constraint_violation(exception)
+    error_message = if exception.message.include?('index_products_on_group_id_and_product_number')
+                      '同じ品番がすでに存在しています'
+                    elsif exception.message.include?('index_products_on_group_id_and_product_name')
+                      '同じ品名がすでに存在しています'
+                    else
+                      'データが重複しています'
+                    end
+
+    render json: { errors: [error_message] }, status: :unprocessable_entity
   end
 end

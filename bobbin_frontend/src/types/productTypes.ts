@@ -3,12 +3,13 @@ export type Product = {
   group_name: string
   product_type_id: number
   product_type: string
-  customer_id: number
-  customer_name: string
+  customer_id: number | null
+  customer_name: string | null
   product_number: string
   product_name: string
-  user_id: number
-  user_name: string
+  user_id: number | null
+  user_first_name: string | null
+  user_last_name: string | null
   progress_id: number
   progress_order: number
   progress_status: string
@@ -39,7 +40,8 @@ export type CustomersApiResponse = {
 
 export type UserApiResponse = {
   id: number
-  user_name: string
+  first_name: string
+  last_name: string
 }
 export type UsersApiResponse = {
   users: UserApiResponse[]

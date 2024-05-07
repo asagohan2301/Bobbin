@@ -15,10 +15,10 @@ export default function New() {
   const handlePostProduct = async (
     groupId: number,
     productTypeId: number,
-    customerId: number,
+    customerId: number | null,
     productNumber: string,
     productName: string,
-    userId: number,
+    userId: number | null,
     progressId: number,
     files: File[],
   ) => {
@@ -35,7 +35,11 @@ export default function New() {
       )
       router.push(`/product/${id}`)
     } catch (error) {
-      setResponseErrorMessages(['登録に失敗しました'])
+      if (error instanceof Error) {
+        setResponseErrorMessages(error.message.split(','))
+      } else {
+        setResponseErrorMessages(['登録に失敗しました'])
+      }
     }
   }
 

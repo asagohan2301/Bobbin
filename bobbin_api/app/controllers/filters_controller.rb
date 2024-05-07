@@ -1,6 +1,6 @@
 class FiltersController < ApplicationController
   def index
-    filters = Filter.where(user_id: 3)
+    filters = Filter.where(user_id: 1)
     formatted_filters = filters.map do |filter|
       {
         id: filter.id,
