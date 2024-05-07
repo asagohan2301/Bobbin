@@ -327,7 +327,8 @@ export default function ProductForm(props: ProductFormProps) {
               }}
               initialValue="未定"
               objects={users}
-              propertyName="user_name"
+              propertyName="first_name"
+              propertyName2="last_name"
               currentSelectedId={userId}
             />
             <Select<ProgressApiResponse>

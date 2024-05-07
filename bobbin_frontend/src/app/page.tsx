@@ -214,7 +214,7 @@ export default function Home() {
                     <div className="flex-[3_3_0%]">
                       {product.customer_name ? product.customer_name : '-'}
                     </div>
-                    {product.user_name ? (
+                    {product.user_id ? (
                       <div className="flex flex-[3_3_0%] items-center">
                         <Image
                           src="/bobbin_icon.png"
@@ -223,7 +223,7 @@ export default function Home() {
                           alt="bobbin-icon"
                           className="mr-2"
                         />
-                        <div>{product.user_name}</div>
+                        <div>{`${product.user_last_name} ${product.user_first_name}`}</div>
                       </div>
                     ) : (
                       <div className="flex-[3_3_0%]">未定</div>

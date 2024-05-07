@@ -36,7 +36,7 @@ export default function Select<T extends { id: number }>(
         {initialValue && <option value="null">{initialValue}</option>}
         {objects.map((object) => {
           const displayText = propertyName2
-            ? `${object[propertyName2]}: ${object[propertyName]}`
+            ? `${object[propertyName2]} ${object[propertyName]}`
             : object[propertyName]
           return (
             <option

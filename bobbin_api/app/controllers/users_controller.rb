@@ -4,7 +4,8 @@ class UsersController < ApplicationController
     formatted_users = users.map do |user|
       {
         id: user.id,
-        user_name: user.user_name
+        first_name: user.first_name,
+        last_name: user.last_name
       }
     end
     render json: { users: formatted_users }, status: :ok
