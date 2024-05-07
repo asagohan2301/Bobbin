@@ -56,7 +56,11 @@ export default function Edit({ params }: { params: Params }) {
       )
       router.push(`/product/${id}`)
     } catch (error) {
-      setResponseErrorMessages(['編集に失敗しました'])
+      if (error instanceof Error) {
+        setResponseErrorMessages(error.message.split(','))
+      } else {
+        setResponseErrorMessages(['編集に失敗しました'])
+      }
     }
   }
 

@@ -25,7 +25,11 @@ class ProductsController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { errors: [e.message] }, status: :unprocessable_entity
+    if e.message.include?('Duplicate entry')
+      handle_unique_constraint_violation(e)
+    else
+      render json: { errors: [e.message] }, status: :unprocessable_entity
+    end
   end
 
   def update
@@ -38,7 +42,11 @@ class ProductsController < ApplicationController
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
-    render json: { errors: [e.message] }, status: :unprocessable_entity
+    if e.message.include?('Duplicate entry')
+      handle_unique_constraint_violation(e)
+    else
+      render json: { errors: [e.message] }, status: :unprocessable_entity
+    end
   end
 
   def destroy
@@ -108,7 +116,15 @@ class ProductsController < ApplicationController
   end
 
   # ユニークキー制約違反 (データベースレベル)
-  def handle_unique_constraint_violation
-    render json: { errors: ['同じ品番または品名がすでに存在しています'] }, status: :unprocessable_entity
+  def handle_unique_constraint_violation(exception)
+    error_message = if exception.message.include?('index_products_on_group_id_and_product_number')
+                      '同じ品番がすでに存在しています'
+                    elsif exception.message.include?('index_products_on_group_id_and_product_name')
+                      '同じ品名がすでに存在しています'
+                    else
+                      'データが重複しています'
+                    end
+
+    render json: { errors: [error_message] }, status: :unprocessable_entity
   end
 end

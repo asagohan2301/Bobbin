@@ -35,7 +35,11 @@ export default function New() {
       )
       router.push(`/product/${id}`)
     } catch (error) {
-      setResponseErrorMessages(['登録に失敗しました'])
+      if (error instanceof Error) {
+        setResponseErrorMessages(error.message.split(','))
+      } else {
+        setResponseErrorMessages(['登録に失敗しました'])
+      }
     }
   }
 
