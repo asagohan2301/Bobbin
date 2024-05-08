@@ -19,10 +19,10 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import {
   ChevronDown,
-  FileEarmarkPlus,
+  ChevronRight,
   PencilSquare,
   PlusLg,
-  Search,
+  X,
 } from 'react-bootstrap-icons'
 
 export default function Home() {
@@ -152,10 +152,10 @@ export default function Home() {
                 )
               })}
             </ul>
-            <div className="cursor-pointer">
+            {/* <div className="cursor-pointer">
               <PencilSquare className="size-[21px] text-gray-700" />
-            </div>
-            <div className="relative">
+            </div> */}
+            {/* <div className="relative">
               <div className="absolute left-3 top-1/2 -translate-y-1/2">
                 <Search className="size-[19px] text-gray-500" />
               </div>
@@ -164,14 +164,16 @@ export default function Home() {
                 placeholder="品番："
                 className="rounded-3xl border-2 border-gray-300 py-1.5 pl-9"
               />
-            </div>
+            </div> */}
           </div>
-          <ButtonWithIcon
-            IconComponent={PlusLg}
-            label="製品新規登録"
-            href="product/new"
-          />
-          <UserInfo />
+          <div className="flex items-end gap-12">
+            <ButtonWithIcon
+              IconComponent={PlusLg}
+              label="製品新規登録"
+              href="product/new"
+            />
+            <UserInfo />
+          </div>
         </div>
         <main>
           <ul className="flex rounded-lg bg-[#EDEDED] py-3 pl-[24px] pr-[30px] text-sm font-semibold text-gray-500">
@@ -188,8 +190,7 @@ export default function Home() {
               const isHoverd = product.id === hoveredProductId
               const isClicked = product.id === clickedProductId
               return (
-                <Link
-                  href={`/product/${product.id}`}
+                <li
                   key={product.id}
                   onMouseEnter={() => {
                     setHoveredProductId(product.id)
@@ -197,87 +198,96 @@ export default function Home() {
                   onMouseLeave={() => {
                     setHoveredProductId(null)
                   }}
+                  className={`box-border flex items-center border-b-2 border-gray-300 p-6 transition ${isHoverd ? 'bg-[#FFF6ED]' : ''}`}
                 >
-                  <li
-                    className={`box-border flex items-center border-b-2 border-gray-300 p-6 transition ${isHoverd ? 'bg-[#FFF6ED]' : ''}`}
-                  >
-                    <div className="flex flex-[5_5_0%] items-center">
+                  <div className="flex-[5_5_0%] ">
+                    <Link
+                      href={`/product/${product.id}`}
+                      className="flex items-center"
+                    >
                       <div className="mr-2 size-[44px] rounded-full border-2 border-gray-400 bg-yellow-50"></div>
                       <div className={isHoverd ? 'underline' : ''}>
                         {product.product_name}
                       </div>
+                    </Link>
+                  </div>
+                  <div className="flex-[4_4_0%]">{product.product_number}</div>
+                  <div className="flex-[3_3_0%]">{product.product_type}</div>
+                  <div className="flex-[3_3_0%]">
+                    {product.customer_name ? product.customer_name : '-'}
+                  </div>
+                  {product.user_id ? (
+                    <div className="flex flex-[3_3_0%] items-center">
+                      <Image
+                        src="/bobbin_icon.png"
+                        width={36}
+                        height={36}
+                        alt="bobbin-icon"
+                        className="mr-2"
+                      />
+                      <div>{`${product.user_last_name} ${product.user_first_name}`}</div>
                     </div>
-                    <div className="flex-[4_4_0%]">
-                      {product.product_number}
+                  ) : (
+                    <div className="flex-[3_3_0%]">未定</div>
+                  )}
+                  <div className="relative flex-[4_4_0%]">
+                    <div
+                      className="mb-2 flex cursor-pointer items-center"
+                      onClick={() => {
+                        setClickedProductId(product.id)
+                      }}
+                    >
+                      <div className="mr-2 text-sm">
+                        {`${product.progress_order}: ${product.progress_status}`}
+                      </div>
+                      <ChevronDown />
                     </div>
-                    <div className="flex-[3_3_0%]">{product.product_type}</div>
-                    <div className="flex-[3_3_0%]">
-                      {product.customer_name ? product.customer_name : '-'}
+                    <div
+                      className="flex"
+                      onClick={(e) => {
+                        e.preventDefault()
+                      }}
+                    >
+                      {Array.from(
+                        { length: product.progress_order },
+                        (_, index) => (
+                          <div
+                            className="mr-1 size-4 bg-[#FFA471]"
+                            key={index}
+                          ></div>
+                        ),
+                      )}
+                      {Array.from(
+                        { length: 5 - product.progress_order },
+                        (_, index) => (
+                          <div
+                            className="mr-1 size-4 bg-[#FFE6CF]"
+                            key={index}
+                          ></div>
+                        ),
+                      )}
                     </div>
-                    {product.user_id ? (
-                      <div className="flex flex-[3_3_0%] items-center">
-                        <Image
-                          src="/bobbin_icon.png"
-                          width={36}
-                          height={36}
-                          alt="bobbin-icon"
-                          className="mr-2"
+                    <div
+                      className={
+                        isClicked
+                          ? 'absolute top-0 z-10 block rounded-lg border-2 bg-white px-4 pb-2 pt-6 text-sm'
+                          : 'hidden'
+                      }
+                    >
+                      <div className="absolute right-2 top-2">
+                        <X
+                          className="align-right mb-2 size-[24px] cursor-pointer "
+                          onClick={() => {
+                            setClickedProductId(null)
+                          }}
                         />
-                        <div>{`${product.user_last_name} ${product.user_first_name}`}</div>
                       </div>
-                    ) : (
-                      <div className="flex-[3_3_0%]">未定</div>
-                    )}
-                    <div className="relative flex-[4_4_0%]">
-                      <div
-                        className="mb-2 flex items-center"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          setClickedProductId(product.id)
-                        }}
-                      >
-                        <div className="mr-2 text-sm">
-                          {`${product.progress_order}: ${product.progress_status}`}
-                        </div>
-                        <ChevronDown className="cursor-pointer" />
-                      </div>
-                      <div
-                        className="flex"
-                        onClick={(e) => {
-                          e.preventDefault()
-                        }}
-                      >
-                        {Array.from(
-                          { length: product.progress_order },
-                          (_, index) => (
-                            <div
-                              className="mr-1 size-4 bg-[#FFA471]"
-                              key={index}
-                            ></div>
-                          ),
-                        )}
-                        {Array.from(
-                          { length: 5 - product.progress_order },
-                          (_, index) => (
-                            <div
-                              className="mr-1 size-4 bg-[#FFE6CF]"
-                              key={index}
-                            ></div>
-                          ),
-                        )}
-                      </div>
-                      <ul
-                        className={
-                          isClicked
-                            ? 'absolute top-0 z-10 block rounded-lg border-2 bg-white p-4 text-sm'
-                            : 'hidden'
-                        }
-                      >
+                      <ul>
                         {progresses.map((progress) => {
                           return (
                             <li
                               key={progress.id}
-                              className="mb-2"
+                              className="my-2 cursor-pointer"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 e.preventDefault()
@@ -294,14 +304,27 @@ export default function Home() {
                         })}
                       </ul>
                     </div>
-                    <div className="flex flex-[3_3_0%] justify-end gap-x-4">
+                  </div>
+                  <div className="flex flex-[3_3_0%] justify-end gap-x-6">
+                    <div className="hover-info-wrapper relative">
                       <Link href={`/product/${product.id}/edit`}>
-                        <PencilSquare className="size-[21px] cursor-pointer text-gray-700" />
+                        <PencilSquare className="size-[21px] text-gray-700" />
                       </Link>
-                      <FileEarmarkPlus className="size-[21px] cursor-pointer text-gray-700" />
+                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border bg-white p-1 text-center text-xs">
+                        編集
+                      </div>
                     </div>
-                  </li>
-                </Link>
+                    <div className="hover-info-wrapper relative">
+                      <Link href={`/product/${product.id}`}>
+                        <ChevronRight className="size-[21px] text-gray-700" />
+                      </Link>
+                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border bg-white p-1 text-center text-xs">
+                        詳細
+                      </div>
+                    </div>
+                    {/* <FileEarmarkPlus className="size-[21px] cursor-pointer text-gray-700" /> */}
+                  </div>
+                </li>
               )
             })}
           </ul>
