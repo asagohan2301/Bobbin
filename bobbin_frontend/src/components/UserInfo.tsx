@@ -13,8 +13,10 @@ export default function UserInfo() {
           alt="bobbin-icon"
           className="mr-2"
         />
-        <div className="mr-6 cursor-pointer">大野 美穂</div>
-        <ChevronDown className="cursor-pointer" />
+        <div className="mr-6">大野 美穂</div>
+        {/* <div className="mr-6 cursor-pointer">大野 美穂</div> */}
+        <ChevronDown />
+        {/* <ChevronDown className="cursor-pointer" /> */}
       </div>
     </div>
   )

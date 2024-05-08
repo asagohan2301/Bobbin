@@ -3,6 +3,7 @@
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import ErrorMessage from '@/components/ErrorMessage'
 import Input from '@/components/Input'
+import PreviewFileInfo from '@/components/PreviewFileInfo'
 import Select from '@/components/Select'
 import { destroyFile, getSelectOptions } from '@/services/productService'
 import type {
@@ -348,28 +349,35 @@ export default function ProductForm(props: ProductFormProps) {
             <div className="mb-3 h-auto min-h-[200px] border-2 border-gray-400">
               {existingFiles.length > 0 && (
                 <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
-                  {existingFiles.map((file) => {
-                    return (
+                  {existingFiles.map((file) =>
+                    ['image/jpeg', 'image/png', 'image/gif'].includes(
+                      file.type,
+                    ) ? (
                       <div key={file.id} className="flex-[0_0_19.1%]">
                         <img
                           src={file.url}
                           alt=""
                           className="mb-1 cursor-pointer border"
                         />
-                        <p className="text-xs">{file.name}</p>
-                        <p className="text-xs">
-                          {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
-                        </p>
-                        <button
-                          onClick={() => {
-                            handleDestroyExistingFile(file.id)
-                          }}
-                        >
-                          <X className="size-[28px]" />
-                        </button>
+                        <PreviewFileInfo
+                          file={file}
+                          onClick={handleDestroyExistingFile}
+                          onClickTarget={file.id}
+                        />
                       </div>
-                    )
-                  })}
+                    ) : file.type === 'application/pdf' ? (
+                      <div key={file.id} className="flex-[0_0_19.1%]">
+                        <div className="mb-1 min-h-[80px] border p-2">
+                          PDF file
+                        </div>
+                        <PreviewFileInfo
+                          file={file}
+                          onClick={handleDestroyExistingFile}
+                          onClickTarget={file.id}
+                        />
+                      </div>
+                    ) : null,
+                  )}
                 </div>
               )}
               {previewFiles.length > 0 && (
@@ -388,17 +396,11 @@ export default function ProductForm(props: ProductFormProps) {
                             onLoad={() => URL.revokeObjectURL(file.url)}
                             className="mb-1 cursor-pointer border"
                           />
-                          <p className="text-xs">{file.name}</p>
-                          <p className="text-xs">
-                            {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
-                          </p>
-                          <button
-                            onClick={() => {
-                              handleRemoveNewFile(index)
-                            }}
-                          >
-                            <X className="size-[28px]" />
-                          </button>
+                          <PreviewFileInfo
+                            file={file}
+                            onClick={handleRemoveNewFile}
+                            onClickTarget={index}
+                          />
                         </div>
                       )
                     } else if (file.type === 'application/pdf') {
@@ -407,17 +409,11 @@ export default function ProductForm(props: ProductFormProps) {
                           <div className="mb-1 min-h-[80px] border p-2">
                             PDF file
                           </div>
-                          <p className="text-xs">{file.name}</p>
-                          <p className="text-xs">
-                            {`${(file.size / 1024 / 1024).toFixed(2)} MB`}
-                          </p>
-                          <button
-                            onClick={() => {
-                              handleRemoveNewFile(index)
-                            }}
-                          >
-                            <X className="size-[28px]" />
-                          </button>
+                          <PreviewFileInfo
+                            file={file}
+                            onClick={handleRemoveNewFile}
+                            onClickTarget={index}
+                          />
                         </div>
                       )
                     }

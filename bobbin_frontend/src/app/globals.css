@@ -15,6 +15,10 @@
   background: #ccc;
 }
 
+.hover-info-wrapper:hover .hover-info {
+  display: block;
+}
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;
