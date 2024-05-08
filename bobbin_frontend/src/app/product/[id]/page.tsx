@@ -81,7 +81,7 @@ export default function Product({ params }: { params: Params }) {
               <PdfFile
                 file={product.files[0]}
                 productId={params.id}
-                width={400}
+                width={700}
                 isMain={true}
               />
             ) : null)}
