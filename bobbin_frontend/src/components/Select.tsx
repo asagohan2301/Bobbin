@@ -30,7 +30,7 @@ export default function Select<T extends { id: number }>(
       <select
         id={elementName}
         onChange={onChange}
-        className="rounded border-2 border-gray-500 p-2"
+        className="rounded border border-gray-500 p-2"
         disabled={disabled}
       >
         {initialValue && <option value="null">{initialValue}</option>}
@@ -43,7 +43,6 @@ export default function Select<T extends { id: number }>(
               value={object.id}
               key={object.id}
               selected={object.id === currentSelectedId ? true : undefined}
-              className="border-b-2 p-2"
             >
               {String(displayText)}
             </option>

@@ -41,7 +41,7 @@ export default function Product({ params }: { params: Params }) {
   return (
     <div className="h-screen">
       <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
-        <div className="mb-8 flex items-center justify-between border-b-2">
+        <div className="mb-10 flex items-center justify-between border-b border-gray-400">
           <div>
             <h1 className="text-2xl">{product.product_name}</h1>
             <h2 className="mb-2 text-xl">{product.product_number}</h2>

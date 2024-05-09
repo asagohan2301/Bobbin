@@ -199,14 +199,14 @@ export default function Home() {
                   onMouseLeave={() => {
                     setHoveredProductId(null)
                   }}
-                  className={`box-border flex items-center border-b-2 border-gray-300 p-6 transition ${isHoverd ? 'bg-[#FFF6ED]' : ''}`}
+                  className={`box-border flex items-center border-b border-gray-400 p-6 transition ${isHoverd ? 'bg-[#FFF6ED]' : ''}`}
                 >
                   <div className="flex-[5_5_0%] ">
                     <Link
                       href={`/product/${product.id}`}
                       className="flex items-center"
                     >
-                      <div className="mr-2 size-[44px] rounded-full border-2 border-gray-400 bg-yellow-50"></div>
+                      <div className="mr-2 size-[44px] rounded-full border border-gray-400 bg-yellow-50"></div>
                       <div className={isHoverd ? 'underline' : ''}>
                         {product.product_name}
                       </div>
@@ -271,7 +271,7 @@ export default function Home() {
                     <div
                       className={
                         isClicked
-                          ? 'absolute top-0 z-10 block rounded-lg border-2 bg-white px-4 pb-2 pt-6 text-sm'
+                          ? 'absolute top-0 z-10 block rounded-lg border border-gray-400 bg-white px-4 pb-2 pt-6 text-sm'
                           : 'hidden'
                       }
                     >
@@ -311,7 +311,7 @@ export default function Home() {
                       <Link href={`/product/${product.id}/edit`}>
                         <PencilSquare className="size-[21px] text-gray-700" />
                       </Link>
-                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border bg-white p-1 text-center text-xs">
+                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border border-gray-400 bg-white p-1 text-center text-xs">
                         編集
                       </div>
                     </div>
@@ -319,7 +319,7 @@ export default function Home() {
                       <Link href={`/product/${product.id}`}>
                         <ChevronRight className="size-[21px] text-gray-700" />
                       </Link>
-                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border bg-white p-1 text-center text-xs">
+                      <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border border-gray-400 bg-white p-1 text-center text-xs">
                         詳細
                       </div>
                     </div>
