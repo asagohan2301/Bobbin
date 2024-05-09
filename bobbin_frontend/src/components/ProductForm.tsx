@@ -431,6 +431,7 @@ export default function ProductForm(props: ProductFormProps) {
                     fileInputRef.current.click()
                   }
                 }}
+                isRegular={true}
               />
               <input
                 type="file"
@@ -454,17 +455,24 @@ export default function ProductForm(props: ProductFormProps) {
           </div>
         </div>
         <div className="flex justify-end gap-4">
-          <ButtonWithIcon IconComponent={X} label="キャンセル" href="/" />
+          <ButtonWithIcon
+            IconComponent={X}
+            label="編集内容を破棄"
+            href="/"
+            isCancel={true}
+          />
           <ButtonWithIcon
             IconComponent={Check}
             label={submitButtonTitle}
             onClick={handleSubmit}
+            isConfirm={true}
           />
           {showDestroyButton && (
             <ButtonWithIcon
               IconComponent={Trash3}
-              label="削除"
+              label="製品を削除"
               onClick={destroyButtonAction}
+              isDestroy={true}
             />
           )}
         </div>

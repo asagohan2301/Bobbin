@@ -46,7 +46,7 @@ export default function New() {
   return (
     <ProductForm
       title="製品登録"
-      submitButtonTitle="決定"
+      submitButtonTitle="登録"
       submitButtonAction={handlePostProduct}
       responseErrorMessages={responseErrorMessages}
     />

@@ -113,12 +113,14 @@ export default function Product({ params }: { params: Params }) {
             IconComponent={ChevronLeft}
             label="一覧ページへ"
             href="/"
+            isRegular={true}
           />
           <div className="flex gap-4">
             <ButtonWithIcon
               IconComponent={PencilSquare}
               label="編集"
               href={`/product/${product.id}/edit`}
+              isRegular={true}
             />
             {/* <ButtonWithIcon
               IconComponent={FileEarmarkPlus}

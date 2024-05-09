@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import Link from 'next/link'
 
 type ButtonWithIconProps = {
@@ -5,18 +6,44 @@ type ButtonWithIconProps = {
   label: string
   href?: string
   onClick?: () => void
+  isRegular?: boolean
+  isCancel?: boolean
+  isConfirm?: boolean
+  isDestroy?: boolean
 }
 
 export default function ButtonWithIcon(props: ButtonWithIconProps) {
-  const { IconComponent, label, href, onClick } = props
+  const {
+    IconComponent,
+    label,
+    href,
+    onClick,
+    isRegular,
+    isCancel,
+    isConfirm,
+    isDestroy,
+  } = props
+
+  const buttonClasses = classNames(
+    'flex items-center gap-2 rounded-lg px-5 py-3 text-sm',
+    {
+      'border border-gray-700 text-gray-700': isRegular,
+      'border border-gray-500 text-gray-500': isCancel,
+      'bg-blue-400 text-white': isConfirm,
+      'bg-red-500 text-white': isDestroy,
+    },
+  )
+
+  const iconClasses = classNames('size-[18px] cursor-pointer', {
+    'text-gray-700': isRegular,
+    'text-gray-500': isCancel,
+    'text-white': isConfirm || isDestroy,
+  })
 
   const renderButtonTag = () => {
     return (
-      <button
-        className="flex items-center gap-2 rounded-2xl border-2 border-gray-400 px-4 py-2 text-sm"
-        onClick={onClick}
-      >
-        <IconComponent className="size-[20px] cursor-pointer text-gray-700" />
+      <button className={buttonClasses} onClick={onClick}>
+        <IconComponent className={iconClasses} />
         {label}
       </button>
     )

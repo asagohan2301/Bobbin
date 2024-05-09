@@ -169,8 +169,9 @@ export default function Home() {
           <div className="flex items-end gap-12">
             <ButtonWithIcon
               IconComponent={PlusLg}
-              label="製品新規登録"
+              label="製品登録"
               href="product/new"
+              isRegular={true}
             />
             <UserInfo />
           </div>
