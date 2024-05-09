@@ -346,7 +346,7 @@ export default function ProductForm(props: ProductFormProps) {
           </form>
           <div className="flex-[5_5_0%]">
             <p className="mb-2">ファイル一覧</p>
-            <div className="mb-3 h-auto min-h-[200px] border-2 border-gray-400">
+            <div className="mb-3 h-auto min-h-[200px] border border-gray-400">
               {existingFiles.length > 0 && (
                 <div className="flex flex-wrap gap-x-2 gap-y-4 p-4">
                   {existingFiles.map((file) =>
@@ -357,7 +357,7 @@ export default function ProductForm(props: ProductFormProps) {
                         <img
                           src={file.url}
                           alt=""
-                          className="mb-1 cursor-pointer border"
+                          className="mb-1 cursor-pointer border border-gray-300"
                         />
                         <PreviewFileInfo
                           file={file}
@@ -367,7 +367,7 @@ export default function ProductForm(props: ProductFormProps) {
                       </div>
                     ) : file.type === 'application/pdf' ? (
                       <div key={file.id} className="flex-[0_0_19.1%]">
-                        <div className="mb-1 min-h-[80px] border p-2">
+                        <div className="mb-1 min-h-[80px] border border-gray-300 p-2">
                           PDF file
                         </div>
                         <PreviewFileInfo
@@ -394,7 +394,7 @@ export default function ProductForm(props: ProductFormProps) {
                             src={file.url}
                             alt={`preview-${index}`}
                             onLoad={() => URL.revokeObjectURL(file.url)}
-                            className="mb-1 cursor-pointer border"
+                            className="mb-1 cursor-pointer border border-gray-300"
                           />
                           <PreviewFileInfo
                             file={file}
@@ -406,7 +406,7 @@ export default function ProductForm(props: ProductFormProps) {
                     } else if (file.type === 'application/pdf') {
                       return (
                         <div key={index} className="flex-[0_0_19.1%]">
-                          <div className="mb-1 min-h-[80px] border p-2">
+                          <div className="mb-1 min-h-[80px] border border-gray-300 p-2">
                             PDF file
                           </div>
                           <PreviewFileInfo
@@ -431,6 +431,7 @@ export default function ProductForm(props: ProductFormProps) {
                     fileInputRef.current.click()
                   }
                 }}
+                isRegular={true}
               />
               <input
                 type="file"
@@ -454,17 +455,24 @@ export default function ProductForm(props: ProductFormProps) {
           </div>
         </div>
         <div className="flex justify-end gap-4">
-          <ButtonWithIcon IconComponent={X} label="キャンセル" href="/" />
+          <ButtonWithIcon
+            IconComponent={X}
+            label="キャンセル"
+            href="/"
+            isCancel={true}
+          />
           <ButtonWithIcon
             IconComponent={Check}
             label={submitButtonTitle}
             onClick={handleSubmit}
+            isConfirm={true}
           />
           {showDestroyButton && (
             <ButtonWithIcon
               IconComponent={Trash3}
-              label="削除"
+              label="製品を削除"
               onClick={destroyButtonAction}
+              isDestroy={true}
             />
           )}
         </div>

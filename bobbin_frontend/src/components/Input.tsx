@@ -25,7 +25,7 @@ export default function Input(props: InputProps) {
         type="text"
         id={elementName}
         onChange={handleOnChange}
-        className="rounded border-2 border-gray-500 px-2 py-1"
+        className="rounded border border-gray-500 p-2"
         value={inputValue}
       />
     </div>

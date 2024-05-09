@@ -34,7 +34,7 @@ export default function ImageFile(props: PdfFileProps) {
 
   return (
     <div>
-      <div className="mb-1 border">
+      <div className="mb-1 border border-gray-300">
         <Document
           file={`${apiEndpoint}/api/products/${productId}/files/${file.id}/proxy`}
           options={options}
