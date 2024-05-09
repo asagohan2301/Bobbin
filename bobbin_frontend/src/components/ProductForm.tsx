@@ -261,8 +261,8 @@ export default function ProductForm(props: ProductFormProps) {
   }
 
   return (
-    <div className="h-screen">
-      <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
+    <div>
+      <div className="mx-auto max-w-[1440px] px-14 py-5">
         <h1 className="mb-8 text-2xl">{title}</h1>
         <div className="flex gap-20">
           <form className="flex-[3_3_0%]">
@@ -486,7 +486,7 @@ export default function ProductForm(props: ProductFormProps) {
           <ErrorMessage errorMessages={responseErrorMessages} />
         )}
       </div>
-      <footer className="absolute bottom-0 h-8 w-full"></footer>
+      <footer className="h-8 w-full"></footer>
     </div>
   )
 }
