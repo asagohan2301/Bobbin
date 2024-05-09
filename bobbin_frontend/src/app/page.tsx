@@ -179,12 +179,12 @@ export default function Home() {
         <main>
           <ul className="flex rounded-lg bg-[#EDEDED] py-3 pl-[24px] pr-[30px] text-sm font-semibold text-gray-500">
             <li className="flex-[5_5_0%]">品名</li>
-            <li className="flex-[4_4_0%]">品番</li>
+            <li className="flex-[3_3_0%]">品番</li>
             <li className="flex-[3_3_0%]">種別</li>
-            <li className="flex-[3_3_0%]">お客様名</li>
-            <li className="flex-[3_3_0%]">担当者</li>
+            <li className="flex-[4_4_0%]">お客様名</li>
+            <li className="flex-[4_4_0%]">担当者</li>
             <li className="flex-[4_4_0%]">進捗</li>
-            <li className="flex-[3_3_0%]"></li>
+            <li className="flex-[2_2_0%]"></li>
           </ul>
           <ul className="custom-scrollbar h-[calc(100vh-180px-32px)] overflow-y-auto">
             {filteredProducts.map((product) => {
@@ -212,13 +212,13 @@ export default function Home() {
                       </div>
                     </Link>
                   </div>
-                  <div className="flex-[4_4_0%]">{product.product_number}</div>
+                  <div className="flex-[3_3_0%]">{product.product_number}</div>
                   <div className="flex-[3_3_0%]">{product.product_type}</div>
-                  <div className="flex-[3_3_0%]">
+                  <div className="flex-[4_4_0%]">
                     {product.customer_name ? product.customer_name : '-'}
                   </div>
                   {product.user_id ? (
-                    <div className="flex flex-[3_3_0%] items-center">
+                    <div className="flex flex-[4_4_0%] items-center">
                       <Image
                         src="/bobbin_icon.png"
                         width={36}
@@ -229,7 +229,7 @@ export default function Home() {
                       <div>{`${product.user_last_name} ${product.user_first_name}`}</div>
                     </div>
                   ) : (
-                    <div className="flex-[3_3_0%]">未定</div>
+                    <div className="flex-[4_4_0%]">未定</div>
                   )}
                   <div className="relative flex-[4_4_0%]">
                     <div
@@ -268,16 +268,17 @@ export default function Home() {
                         ),
                       )}
                     </div>
+                    {/* 進捗モーダル */}
                     <div
                       className={
                         isClicked
-                          ? 'absolute top-0 z-10 block rounded-lg border border-gray-400 bg-white px-4 pb-2 pt-6 text-sm'
+                          ? 'absolute top-0 z-10 block rounded-lg border border-gray-400 bg-white px-4 py-2 text-sm'
                           : 'hidden'
                       }
                     >
-                      <div className="absolute right-2 top-2">
+                      <div className="absolute -right-3 -top-4 flex size-[36px] items-center justify-center rounded-full border border-gray-400 bg-white">
                         <X
-                          className="align-right mb-2 size-[24px] cursor-pointer "
+                          className="size-[24px] cursor-pointer"
                           onClick={() => {
                             setClickedProductId(null)
                           }}
@@ -288,7 +289,7 @@ export default function Home() {
                           return (
                             <li
                               key={progress.id}
-                              className="my-2 cursor-pointer"
+                              className="hover-option cursor-pointer rounded-lg p-1 transition"
                               onClick={(e) => {
                                 e.stopPropagation()
                                 e.preventDefault()
@@ -306,7 +307,7 @@ export default function Home() {
                       </ul>
                     </div>
                   </div>
-                  <div className="flex flex-[3_3_0%] justify-end gap-x-6">
+                  <div className="flex flex-[2_2_0%] justify-end gap-x-6">
                     <div className="hover-info-wrapper relative">
                       <Link href={`/product/${product.id}/edit`}>
                         <PencilSquare className="size-[21px] text-gray-700" />
