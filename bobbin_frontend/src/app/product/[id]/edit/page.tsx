@@ -41,6 +41,7 @@ export default function Edit({ params }: { params: Params }) {
     userId: number | null,
     progressId: number,
     files: File[],
+    productIconBlob: Blob | undefined,
   ) => {
     try {
       const id = await updateProduct(
@@ -53,6 +54,7 @@ export default function Edit({ params }: { params: Params }) {
         userId,
         progressId,
         files,
+        productIconBlob,
       )
       router.push(`/product/${id}`)
     } catch (error) {
