@@ -355,23 +355,28 @@ export default function ProductForm(props: ProductFormProps) {
                   className="size-[120px] rounded-full border border-gray-500"
                 />
                 {/* productIcon選択 */}
-                <ButtonWithIcon
-                  IconComponent={PencilSquare}
-                  label="編集"
-                  onClick={() => {
-                    if (productIconInputRef.current) {
-                      productIconInputRef.current.click()
-                    }
-                  }}
-                  isRegular={true}
-                />
-                <input
-                  type="file"
-                  aria-label="製品のサムネイル用画像を選択してください"
-                  ref={productIconInputRef}
-                  className="hidden"
-                  onChange={handleChangeCrop}
-                />
+                <div>
+                  <ButtonWithIcon
+                    IconComponent={PencilSquare}
+                    label="編集"
+                    onClick={() => {
+                      if (productIconInputRef.current) {
+                        productIconInputRef.current.click()
+                      }
+                    }}
+                    isRegular={true}
+                  />
+                  <p className="mt-2 text-xs">
+                    ・画像ファイル (JPEG, PNG, GIF) を選択してください
+                  </p>
+                  <input
+                    type="file"
+                    aria-label="製品のサムネイル用画像を選択してください"
+                    ref={productIconInputRef}
+                    className="hidden"
+                    onChange={handleChangeCrop}
+                  />
+                </div>
               </div>
             </div>
             {/* productIcon モーダル */}
