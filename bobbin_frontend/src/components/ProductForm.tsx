@@ -461,6 +461,7 @@ export default function ProductForm(props: ProductFormProps) {
                 disabled={productTypeId === 1}
               />
               <Input
+                type="text"
                 title="品番"
                 elementName="productNumber"
                 onChange={(e) => {
@@ -469,6 +470,7 @@ export default function ProductForm(props: ProductFormProps) {
                 currentValue={currentProductNumber}
               />
               <Input
+                type="text"
                 title="品名"
                 elementName="productName"
                 onChange={(e) => {

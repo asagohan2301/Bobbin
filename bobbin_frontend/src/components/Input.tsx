@@ -3,6 +3,7 @@
 import { useState } from 'react'
 
 type InputProps = {
+  type: string
   title: string
   elementName: string
   onChange: React.ChangeEventHandler<HTMLInputElement>
@@ -10,7 +11,7 @@ type InputProps = {
 }
 
 export default function Input(props: InputProps) {
-  const { title, elementName, onChange, currentValue } = props
+  const { type, title, elementName, onChange, currentValue } = props
   const [inputValue, setInputValue] = useState<string>(currentValue || '')
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -22,7 +23,7 @@ export default function Input(props: InputProps) {
     <div className="mb-4 flex flex-col">
       <label htmlFor={elementName}>{title}</label>
       <input
-        type="text"
+        type={type}
         id={elementName}
         onChange={handleOnChange}
         className="rounded border border-gray-500 p-2"
