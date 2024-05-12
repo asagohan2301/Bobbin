@@ -18,6 +18,7 @@ import type {
   UserApiResponse,
   UsersApiResponse,
 } from '@/types/productTypes'
+import { getCroppedImg } from '@/utils/cropUtils'
 import {
   calculateFilesTotalSize,
   checkFilesErrors,
@@ -25,6 +26,7 @@ import {
   removeNewFile,
 } from '@/utils/fileUtils'
 import { validateProductForm } from '@/utils/validateUtils'
+import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import {
   Check,
@@ -34,8 +36,8 @@ import {
   X,
 } from 'react-bootstrap-icons'
 
-import type { Crop } from 'react-image-crop'
-import ReactCrop, { type PixelCrop } from 'react-image-crop'
+import type { Crop, PixelCrop } from 'react-image-crop'
+import ReactCrop from 'react-image-crop'
 import 'react-image-crop/dist/ReactCrop.css'
 
 type ProductFormProps = {
@@ -48,6 +50,7 @@ type ProductFormProps = {
   currentUserId?: number | null
   currentProgressId?: number
   currentExistingFiles?: FileApiResponse[] | []
+  currentProductIconUrl?: string | null
   submitButtonTitle: string
   submitButtonAction: (
     groupId: number,
@@ -76,6 +79,7 @@ export default function ProductForm(props: ProductFormProps) {
     currentUserId,
     currentProgressId,
     currentExistingFiles,
+    currentProductIconUrl,
     submitButtonTitle,
     submitButtonAction,
     showDestroyButton,
@@ -122,7 +126,16 @@ export default function ProductForm(props: ProductFormProps) {
     string[]
   >([])
 
+  const [crop, setCrop] = useState<Crop | undefined>(undefined)
+  const [productIconBlob, setProductIconBlob] = useState<Blob>()
+  const [productIconPendingImageUrl, setProductIconPendingImageUrl] =
+    useState<string>()
+  const [productIconCroppedImageUrl, setProductIconCroppedImageUrl] =
+    useState<string>(currentProductIconUrl || '')
+
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const productIconImgRef = useRef<HTMLImageElement>(null)
+  const productIconInputRef = useRef<HTMLInputElement>(null)
 
   // ページ読み込み時に select 要素のオプションを取得
   useEffect(() => {
@@ -144,6 +157,18 @@ export default function ProductForm(props: ProductFormProps) {
     const filesTotalSize = calculateFilesTotalSize(existingFiles)
     setExistingFilesTotalSize(filesTotalSize)
   }, [existingFiles])
+
+  // productIcon の URL を解放
+  useEffect(() => {
+    return () => {
+      if (productIconPendingImageUrl) {
+        URL.revokeObjectURL(productIconPendingImageUrl)
+      }
+      if (productIconCroppedImageUrl) {
+        URL.revokeObjectURL(productIconCroppedImageUrl)
+      }
+    }
+  }, [productIconPendingImageUrl, productIconCroppedImageUrl])
 
   // 新規登録送信 or 編集送信
   const handleSubmit = async () => {
@@ -272,64 +297,42 @@ export default function ProductForm(props: ProductFormProps) {
     }
   }
 
-  // ここから ---------------------------------------------------------------------------
+  // 製品サムネイル用画像が選択されたときの処理
+  const handleChangeCrop = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0]
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+        alert('画像ファイル (JPEG, PNG, GIF) を選択してください')
+        return
+      }
+      const newUrl = URL.createObjectURL(file)
 
-  const productIconImgRef = useRef<HTMLImageElement>(null)
-  const productIconInputRef = useRef<HTMLInputElement>(null)
-
-  const [crop, setCrop] = useState<Crop | undefined>(undefined)
-
-  const [productIconPendingImageUrl, setProductIconPendingImageUrl] =
-    useState<string>()
-  const [productIconBlob, setProductIconBlob] = useState<Blob>()
-  const [productIconCroppedImageUrl, setProductIconCroppedImageUrl] =
-    useState<string>()
-
-  useEffect(() => {
-    return () => {
       if (productIconPendingImageUrl) {
         URL.revokeObjectURL(productIconPendingImageUrl)
       }
-      if (productIconCroppedImageUrl) {
-        URL.revokeObjectURL(productIconCroppedImageUrl)
-      }
+
+      setProductIconPendingImageUrl(newUrl)
+      e.target.value = ''
     }
-  }, [productIconPendingImageUrl, productIconCroppedImageUrl])
+  }
 
-  const getCroppedImg = async (image: HTMLImageElement, crop: PixelCrop) => {
-    const canvas = document.createElement('canvas')
-    const scaleX = image.naturalWidth / image.width
-    const scaleY = image.naturalHeight / image.height
-    canvas.width = crop.width
-    canvas.height = crop.height
-    const ctx = canvas.getContext('2d')
+  // 画像がトリミングされたときの処理
+  const handleCompleteCrop = async (c: PixelCrop) => {
+    if (productIconImgRef.current) {
+      try {
+        const newBlob = await getCroppedImg(productIconImgRef.current, c)
+        const newUrl = URL.createObjectURL(newBlob)
 
-    if (!ctx) {
-      return
-    }
-
-    ctx.drawImage(
-      image,
-      crop.x * scaleX,
-      crop.y * scaleY,
-      crop.width * scaleX,
-      crop.height * scaleY,
-      0,
-      0,
-      crop.width,
-      crop.height,
-    )
-
-    canvas.toBlob((blob) => {
-      if (blob) {
         if (productIconCroppedImageUrl) {
           URL.revokeObjectURL(productIconCroppedImageUrl)
         }
-        const newUrl = URL.createObjectURL(blob)
-        setProductIconBlob(blob)
+
+        setProductIconBlob(newBlob)
         setProductIconCroppedImageUrl(newUrl)
+      } catch (error) {
+        console.error(error)
       }
-    }, 'image/jpeg')
+    }
   }
 
   return (
@@ -342,15 +345,15 @@ export default function ProductForm(props: ProductFormProps) {
             <div>
               <p className="mb-2">製品サムネイル</p>
               <div className="mb-4 flex items-center gap-4">
-                <div className="size-[120px] rounded-full bg-red-200 bg-[url('/bobbin_icon.png')] bg-cover bg-center bg-no-repeat">
-                  {productIconCroppedImageUrl && (
-                    <img
-                      src={productIconCroppedImageUrl}
-                      alt="product-icon"
-                      className="size-[120px] rounded-full border border-gray-500"
-                    />
-                  )}
-                </div>
+                <img
+                  src={
+                    productIconCroppedImageUrl
+                      ? productIconCroppedImageUrl
+                      : '/bobbin_icon.png'
+                  }
+                  alt="product-icon"
+                  className="size-[120px] rounded-full border border-gray-500"
+                />
                 {/* productIcon選択 */}
                 <ButtonWithIcon
                   IconComponent={PencilSquare}
@@ -364,27 +367,10 @@ export default function ProductForm(props: ProductFormProps) {
                 />
                 <input
                   type="file"
-                  aria-label="製品のサムネイル用ファイルを選択してください"
+                  aria-label="製品のサムネイル用画像を選択してください"
                   ref={productIconInputRef}
                   className="hidden"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      const file = e.target.files[0]
-                      if (
-                        !['image/jpeg', 'image/png', 'image/gif'].includes(
-                          file.type,
-                        )
-                      ) {
-                        alert(
-                          '画像ファイル (JPEG, PNG, GIF) を選択してください',
-                        )
-                        return
-                      }
-                      const url = URL.createObjectURL(file)
-                      setProductIconPendingImageUrl(url)
-                      e.target.value = ''
-                    }
-                  }}
+                  onChange={handleChangeCrop}
                 />
               </div>
             </div>
@@ -400,11 +386,7 @@ export default function ProductForm(props: ProductFormProps) {
                     onChange={(c) => setCrop(c)}
                     circularCrop={true}
                     aspect={1}
-                    onComplete={(c) => {
-                      if (productIconImgRef.current) {
-                        getCroppedImg(productIconImgRef.current, c)
-                      }
-                    }}
+                    onComplete={handleCompleteCrop}
                   >
                     <img
                       src={productIconPendingImageUrl}

@@ -101,6 +101,7 @@ export default function Edit({ params }: { params: Params }) {
         currentUserId={product.user_id}
         currentProgressId={product.progress_id}
         currentExistingFiles={product.files}
+        currentProductIconUrl={product.product_icon && product.product_icon.url}
         submitButtonTitle="編集内容を保存"
         submitButtonAction={handleUpdateProduct}
         showDestroyButton={true}

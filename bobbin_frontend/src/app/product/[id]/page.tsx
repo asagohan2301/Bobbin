@@ -43,8 +43,21 @@ export default function Product({ params }: { params: Params }) {
       <div className="mx-auto max-w-[1440px] px-14 py-5">
         <div className="mb-10 flex items-center justify-between border-b border-gray-400">
           <div>
-            <h1 className="text-2xl">{product.product_name}</h1>
-            <h2 className="mb-2 text-xl">{product.product_number}</h2>
+            <div className="mb-2 flex items-center">
+              <img
+                src={
+                  product.product_icon
+                    ? product.product_icon.url
+                    : '/bobbin_icon.png'
+                }
+                alt="product_icon"
+                className="border-box mr-2 size-[60px] rounded-full border border-gray-400"
+              />
+              <div>
+                <h1 className="text-2xl">{product.product_name}</h1>
+                <h2 className="text-xl">{product.product_number}</h2>
+              </div>
+            </div>
             <ul className="mb-2 flex gap-10">
               <li>
                 <span className="text-sm">種別：</span>
