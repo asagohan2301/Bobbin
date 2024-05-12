@@ -19,6 +19,7 @@ class ProductsController < ApplicationController
     ActiveRecord::Base.transaction do
       product.save!
       product.files.attach(params[:files]) if params[:files].present?
+      product.product_icon.attach(params[:product_icon]) if params[:product_icon].present?
     end
 
     render json: { id: product.id }, status: :created
@@ -61,19 +62,8 @@ class ProductsController < ApplicationController
   end
 
   def format_product_response(product)
-    files = []
-    if product.files.attached?
-      files = product.files.map do |file|
-        {
-          id: file.id,
-          url: url_for(file),
-          name: file.filename.to_s,
-          type: file.content_type,
-          size: file.byte_size
-        }
-      end
-    end
-
+    files = format_files_response(product)
+    product_icon = format_product_icon_response(product)
     {
       id: product.id,
       group_name: product.group.group_name,
@@ -89,8 +79,38 @@ class ProductsController < ApplicationController
       progress_id: product.progress.id,
       progress_order: product.progress.order,
       progress_status: product.progress.progress_status,
-      files:
+      files:,
+      product_icon:
     }
+  end
+
+  def format_files_response(product)
+    files = []
+    if product.files.attached?
+      files = product.files.map do |file|
+        {
+          id: file.id,
+          url: url_for(file),
+          name: file.filename.to_s,
+          type: file.content_type,
+          size: file.byte_size
+        }
+      end
+    end
+    files
+  end
+
+  def format_product_icon_response(product)
+    if product.product_icon.attached?
+      product_icon = {
+        id: product.product_icon.id,
+        url: url_for(product.product_icon),
+        name: product.product_icon.filename.to_s,
+        type: product.product_icon.content_type,
+        size: product.product_icon.byte_size
+      }
+    end
+    product_icon
   end
 
   def product_params
@@ -102,7 +122,9 @@ class ProductsController < ApplicationController
       :product_number,
       :product_name,
       :user_id,
-      :progress_id
+      :progress_id,
+      :files,
+      :product_icon
     )
     permitted_params[:customer_id] = nil if permitted_params[:customer_id] == 'null'
     permitted_params[:user_id] = nil if permitted_params[:user_id] == 'null'

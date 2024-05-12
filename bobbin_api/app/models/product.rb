@@ -5,4 +5,5 @@ class Product < ApplicationRecord
   belongs_to :user, optional: true
   belongs_to :progress
   has_many_attached :files
+  has_one_attached :product_icon
 end

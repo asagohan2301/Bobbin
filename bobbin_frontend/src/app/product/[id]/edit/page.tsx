@@ -41,6 +41,7 @@ export default function Edit({ params }: { params: Params }) {
     userId: number | null,
     progressId: number,
     files: File[],
+    productIconBlob: Blob | undefined,
   ) => {
     try {
       const id = await updateProduct(
@@ -53,6 +54,7 @@ export default function Edit({ params }: { params: Params }) {
         userId,
         progressId,
         files,
+        productIconBlob,
       )
       router.push(`/product/${id}`)
     } catch (error) {
@@ -99,6 +101,7 @@ export default function Edit({ params }: { params: Params }) {
         currentUserId={product.user_id}
         currentProgressId={product.progress_id}
         currentExistingFiles={product.files}
+        currentProductIconUrl={product.product_icon && product.product_icon.url}
         submitButtonTitle="編集内容を保存"
         submitButtonAction={handleUpdateProduct}
         showDestroyButton={true}

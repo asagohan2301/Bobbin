@@ -36,6 +36,7 @@ export const postProduct = async (
   userId: number | null,
   progressId: number | null,
   files: File[],
+  productIconBlob: Blob | undefined,
 ): Promise<string> => {
   const productFormData = makeFormData(
     groupId,
@@ -46,6 +47,7 @@ export const postProduct = async (
     userId,
     progressId,
     files,
+    productIconBlob,
   )
 
   const res = await fetch(`${apiEndpoint}/api/products`, {
@@ -71,6 +73,7 @@ export const updateProduct = async (
   userId: number | null,
   progressId: number | null,
   files: File[],
+  productIconBlob: Blob | undefined,
 ): Promise<string> => {
   const productFormData = makeFormData(
     groupId,
@@ -81,6 +84,7 @@ export const updateProduct = async (
     userId,
     progressId,
     files,
+    productIconBlob,
   )
 
   const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
@@ -161,6 +165,7 @@ const makeFormData = (
   userId: number | null,
   progressId: number | null,
   files: File[],
+  productIconBlob: Blob | undefined,
 ) => {
   const productFormData = new FormData()
 
@@ -185,6 +190,10 @@ const makeFormData = (
     files.forEach((file) => {
       productFormData.append(`files[]`, file)
     })
+  }
+
+  if (productIconBlob) {
+    productFormData.append('product_icon', productIconBlob, 'product_icon.jpg')
   }
 
   return productFormData

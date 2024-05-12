@@ -206,7 +206,15 @@ export default function Home() {
                       href={`/product/${product.id}`}
                       className="flex items-center"
                     >
-                      <div className="mr-2 size-[44px] rounded-full border border-gray-400 bg-yellow-50"></div>
+                      <img
+                        src={
+                          product.product_icon
+                            ? product.product_icon.url
+                            : '/bobbin_icon.png'
+                        }
+                        alt="product_icon"
+                        className="border-box mr-2 size-[52px] rounded-full border border-gray-400"
+                      />
                       <div className={isHoverd ? 'underline' : ''}>
                         {product.product_name}
                       </div>

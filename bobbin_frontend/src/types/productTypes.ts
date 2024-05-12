@@ -14,6 +14,7 @@ export type Product = {
   progress_order: number
   progress_status: string
   files: FileApiResponse[] | []
+  product_icon: FileApiResponse | null
 }
 export type ProductApiResponse = {
   product: Product

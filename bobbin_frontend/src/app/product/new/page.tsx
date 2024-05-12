@@ -21,6 +21,7 @@ export default function New() {
     userId: number | null,
     progressId: number,
     files: File[],
+    productIconBlob: Blob | undefined,
   ) => {
     try {
       const id = await postProduct(
@@ -32,6 +33,7 @@ export default function New() {
         userId,
         progressId,
         files,
+        productIconBlob,
       )
       router.push(`/product/${id}`)
     } catch (error) {

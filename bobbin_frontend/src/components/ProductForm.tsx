@@ -18,6 +18,7 @@ import type {
   UserApiResponse,
   UsersApiResponse,
 } from '@/types/productTypes'
+import { getCroppedImg } from '@/utils/cropUtils'
 import {
   calculateFilesTotalSize,
   checkFilesErrors,
@@ -25,8 +26,19 @@ import {
   removeNewFile,
 } from '@/utils/fileUtils'
 import { validateProductForm } from '@/utils/validateUtils'
+import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { Check, FileEarmarkPlus, Trash3, X } from 'react-bootstrap-icons'
+import {
+  Check,
+  FileEarmarkPlus,
+  PencilSquare,
+  Trash3,
+  X,
+} from 'react-bootstrap-icons'
+
+import type { Crop, PixelCrop } from 'react-image-crop'
+import ReactCrop from 'react-image-crop'
+import 'react-image-crop/dist/ReactCrop.css'
 
 type ProductFormProps = {
   title: string
@@ -38,6 +50,7 @@ type ProductFormProps = {
   currentUserId?: number | null
   currentProgressId?: number
   currentExistingFiles?: FileApiResponse[] | []
+  currentProductIconUrl?: string | null
   submitButtonTitle: string
   submitButtonAction: (
     groupId: number,
@@ -48,6 +61,7 @@ type ProductFormProps = {
     userId: number | null,
     progressId: number,
     files: File[],
+    productIconBlob: Blob | undefined,
   ) => Promise<void>
   showDestroyButton?: boolean
   destroyButtonAction?: () => Promise<void>
@@ -65,6 +79,7 @@ export default function ProductForm(props: ProductFormProps) {
     currentUserId,
     currentProgressId,
     currentExistingFiles,
+    currentProductIconUrl,
     submitButtonTitle,
     submitButtonAction,
     showDestroyButton,
@@ -111,7 +126,16 @@ export default function ProductForm(props: ProductFormProps) {
     string[]
   >([])
 
+  const [crop, setCrop] = useState<Crop | undefined>(undefined)
+  const [productIconBlob, setProductIconBlob] = useState<Blob>()
+  const [productIconPendingImageUrl, setProductIconPendingImageUrl] =
+    useState<string>()
+  const [productIconCroppedImageUrl, setProductIconCroppedImageUrl] =
+    useState<string>(currentProductIconUrl || '')
+
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const productIconImgRef = useRef<HTMLImageElement>(null)
+  const productIconInputRef = useRef<HTMLInputElement>(null)
 
   // ページ読み込み時に select 要素のオプションを取得
   useEffect(() => {
@@ -133,6 +157,18 @@ export default function ProductForm(props: ProductFormProps) {
     const filesTotalSize = calculateFilesTotalSize(existingFiles)
     setExistingFilesTotalSize(filesTotalSize)
   }, [existingFiles])
+
+  // productIcon の URL を解放
+  useEffect(() => {
+    return () => {
+      if (productIconPendingImageUrl) {
+        URL.revokeObjectURL(productIconPendingImageUrl)
+      }
+      if (productIconCroppedImageUrl) {
+        URL.revokeObjectURL(productIconCroppedImageUrl)
+      }
+    }
+  }, [productIconPendingImageUrl, productIconCroppedImageUrl])
 
   // 新規登録送信 or 編集送信
   const handleSubmit = async () => {
@@ -156,6 +192,7 @@ export default function ProductForm(props: ProductFormProps) {
       userId,
       progressId as number,
       newFiles,
+      productIconBlob,
     )
   }
 
@@ -260,90 +297,214 @@ export default function ProductForm(props: ProductFormProps) {
     }
   }
 
+  // 製品サムネイル用画像が選択されたときの処理
+  const handleChangeCrop = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const file = e.target.files[0]
+      if (!['image/jpeg', 'image/png', 'image/gif'].includes(file.type)) {
+        alert('画像ファイル (JPEG, PNG, GIF) を選択してください')
+        return
+      }
+      const newUrl = URL.createObjectURL(file)
+
+      if (productIconPendingImageUrl) {
+        URL.revokeObjectURL(productIconPendingImageUrl)
+      }
+
+      setProductIconPendingImageUrl(newUrl)
+      e.target.value = ''
+    }
+  }
+
+  // 画像がトリミングされたときの処理
+  const handleCompleteCrop = async (c: PixelCrop) => {
+    if (productIconImgRef.current) {
+      try {
+        const newBlob = await getCroppedImg(productIconImgRef.current, c)
+        const newUrl = URL.createObjectURL(newBlob)
+
+        if (productIconCroppedImageUrl) {
+          URL.revokeObjectURL(productIconCroppedImageUrl)
+        }
+
+        setProductIconBlob(newBlob)
+        setProductIconCroppedImageUrl(newUrl)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+  }
+
   return (
-    <div className="h-screen">
-      <div className="mx-auto h-full max-w-[1440px] px-14 py-5">
+    <div>
+      <div className="relative mx-auto max-w-[1440px] px-14 py-5">
         <h1 className="mb-8 text-2xl">{title}</h1>
         <div className="flex gap-20">
-          <form className="flex-[3_3_0%]">
-            <Select<ProductTypeApiResponse>
-              title="種別"
-              elementName="productType"
-              onChange={(e) => {
-                if (e.target.value === 'null') {
-                  setProductTypeId(null)
-                } else {
-                  setProductTypeId(parseInt(e.target.value))
-                }
-                if (parseInt(e.target.value) === 1) {
-                  setCustomerId(null)
-                }
-              }}
-              initialValue="選択してください"
-              objects={productTypes}
-              propertyName="product_type"
-              currentSelectedId={productTypeId}
-            />
-            <Select<CustomerApiResponse>
-              title="お客様名"
-              elementName="customer"
-              onChange={(e) => {
-                if (e.target.value === 'null') {
-                  setCustomerId(null)
-                } else {
-                  setCustomerId(parseInt(e.target.value))
-                }
-              }}
-              initialValue="-"
-              objects={customers}
-              propertyName="customer_name"
-              currentSelectedId={customerId}
-              disabled={productTypeId === 1}
-            />
-            <Input
-              title="品番"
-              elementName="productNumber"
-              onChange={(e) => {
-                setProductNumber(e.target.value)
-              }}
-              currentValue={currentProductNumber}
-            />
-            <Input
-              title="品名"
-              elementName="productName"
-              onChange={(e) => {
-                setProductName(e.target.value)
-              }}
-              currentValue={currentProductName}
-            />
-            <Select<UserApiResponse>
-              title="担当者"
-              elementName="user"
-              onChange={(e) => {
-                if (e.target.value === 'null') {
-                  setUserId(null)
-                } else {
-                  setUserId(parseInt(e.target.value))
-                }
-              }}
-              initialValue="未定"
-              objects={users}
-              propertyName="first_name"
-              propertyName2="last_name"
-              currentSelectedId={userId}
-            />
-            <Select<ProgressApiResponse>
-              title="進捗"
-              elementName="progress"
-              onChange={(e) => {
-                setProgressId(parseInt(e.target.value))
-              }}
-              objects={progresses}
-              propertyName="progress_status"
-              propertyName2="progress_order"
-              currentSelectedId={progressId}
-            />
-          </form>
+          <div className="flex-[3_3_0%]">
+            {/* productIcon 表示 */}
+            <div>
+              <p className="mb-2">製品サムネイル</p>
+              <div className="mb-4 flex items-center gap-4">
+                <img
+                  src={
+                    productIconCroppedImageUrl
+                      ? productIconCroppedImageUrl
+                      : '/bobbin_icon.png'
+                  }
+                  alt="product-icon"
+                  className="size-[120px] rounded-full border border-gray-500"
+                />
+                {/* productIcon選択 */}
+                <div>
+                  <ButtonWithIcon
+                    IconComponent={PencilSquare}
+                    label="編集"
+                    onClick={() => {
+                      if (productIconInputRef.current) {
+                        productIconInputRef.current.click()
+                      }
+                    }}
+                    isRegular={true}
+                  />
+                  <p className="mt-2 text-xs">
+                    ・画像ファイル (JPEG, PNG, GIF) を選択してください
+                  </p>
+                  <input
+                    type="file"
+                    aria-label="製品のサムネイル用画像を選択してください"
+                    ref={productIconInputRef}
+                    className="hidden"
+                    onChange={handleChangeCrop}
+                  />
+                </div>
+              </div>
+            </div>
+            {/* productIcon モーダル */}
+            {productIconPendingImageUrl && (
+              <div className="absolute left-1/2 top-1/2 z-10 w-1/3 -translate-x-1/2 -translate-y-1/2 border border-gray-500 bg-white p-4">
+                <p className="mb-2 text-sm">
+                  ドラッグして画像をトリミングしてください
+                </p>
+                <div className="mx-auto mb-2 min-h-[120px] min-w-[120px]">
+                  <ReactCrop
+                    crop={crop}
+                    onChange={(c) => setCrop(c)}
+                    circularCrop={true}
+                    aspect={1}
+                    onComplete={handleCompleteCrop}
+                  >
+                    <img
+                      src={productIconPendingImageUrl}
+                      alt="pending-product-icon"
+                      ref={productIconImgRef}
+                      className=""
+                    />
+                  </ReactCrop>
+                </div>
+                <div className="flex justify-end">
+                  <ButtonWithIcon
+                    IconComponent={Check}
+                    label="決定"
+                    onClick={() => {
+                      setProductIconPendingImageUrl('')
+                      setCrop(undefined)
+                    }}
+                    isRegular={true}
+                  />
+                </div>
+                <div className="absolute -right-3 -top-4 flex size-[36px] items-center justify-center rounded-full border border-gray-400 bg-white">
+                  <X
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setProductIconCroppedImageUrl('')
+                      setProductIconPendingImageUrl('')
+                      setCrop(undefined)
+                    }}
+                  />
+                </div>
+              </div>
+            )}
+            {/* 製品情報入力フォーム */}
+            <form>
+              <Select<ProductTypeApiResponse>
+                title="種別"
+                elementName="productType"
+                onChange={(e) => {
+                  if (e.target.value === 'null') {
+                    setProductTypeId(null)
+                  } else {
+                    setProductTypeId(parseInt(e.target.value))
+                  }
+                  if (parseInt(e.target.value) === 1) {
+                    setCustomerId(null)
+                  }
+                }}
+                initialValue="選択してください"
+                objects={productTypes}
+                propertyName="product_type"
+                currentSelectedId={productTypeId}
+              />
+              <Select<CustomerApiResponse>
+                title="お客様名"
+                elementName="customer"
+                onChange={(e) => {
+                  if (e.target.value === 'null') {
+                    setCustomerId(null)
+                  } else {
+                    setCustomerId(parseInt(e.target.value))
+                  }
+                }}
+                initialValue="-"
+                objects={customers}
+                propertyName="customer_name"
+                currentSelectedId={customerId}
+                disabled={productTypeId === 1}
+              />
+              <Input
+                title="品番"
+                elementName="productNumber"
+                onChange={(e) => {
+                  setProductNumber(e.target.value)
+                }}
+                currentValue={currentProductNumber}
+              />
+              <Input
+                title="品名"
+                elementName="productName"
+                onChange={(e) => {
+                  setProductName(e.target.value)
+                }}
+                currentValue={currentProductName}
+              />
+              <Select<UserApiResponse>
+                title="担当者"
+                elementName="user"
+                onChange={(e) => {
+                  if (e.target.value === 'null') {
+                    setUserId(null)
+                  } else {
+                    setUserId(parseInt(e.target.value))
+                  }
+                }}
+                initialValue="未定"
+                objects={users}
+                propertyName="first_name"
+                propertyName2="last_name"
+                currentSelectedId={userId}
+              />
+              <Select<ProgressApiResponse>
+                title="進捗"
+                elementName="progress"
+                onChange={(e) => {
+                  setProgressId(parseInt(e.target.value))
+                }}
+                objects={progresses}
+                propertyName="progress_status"
+                propertyName2="progress_order"
+                currentSelectedId={progressId}
+              />
+            </form>
+          </div>
           <div className="flex-[5_5_0%]">
             <p className="mb-2">ファイル一覧</p>
             <div className="mb-3 h-auto min-h-[200px] border border-gray-400">
@@ -486,7 +647,7 @@ export default function ProductForm(props: ProductFormProps) {
           <ErrorMessage errorMessages={responseErrorMessages} />
         )}
       </div>
-      <footer className="absolute bottom-0 h-8 w-full"></footer>
+      <footer className="h-8 w-full"></footer>
     </div>
   )
 }
