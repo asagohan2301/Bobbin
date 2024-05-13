@@ -10,16 +10,16 @@ export default function GroupResister() {
   const [groupName, setGroupName] = useState<string>('')
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
-  const [email, setEmail] = useState<string>('')
+  const [mail, setMail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>('')
 
   const handlePostGroup = async () => {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
+
     const groupData = {
       group_name: groupName,
     }
-
     const groupRes = await fetch(`${apiEndpoint}/api/groups`, {
       method: 'POST',
       headers: {
@@ -28,12 +28,36 @@ export default function GroupResister() {
       body: JSON.stringify(groupData),
     })
     if (!groupRes.ok) {
-      const data: ErrorsApiResponse = await groupRes.json()
-      throw new Error(data.errors.join(','))
+      const groupResData: ErrorsApiResponse = await groupRes.json()
+      throw new Error(groupResData.errors.join(','))
     }
-    const data = await groupRes.json()
-    const groupId = data.id
+    const groupResData = await groupRes.json()
+    const groupId = groupResData.id
     console.log(groupId)
+
+    const userData = {
+      user: {
+        group_id: groupId,
+        first_name: firstName,
+        last_name: lastName,
+        mail,
+        is_admin: true,
+        is_active: true,
+        password,
+        password_confirmation: passwordConfirmation,
+      },
+    }
+    const userRes = await fetch(`${apiEndpoint}/api/groups/${groupId}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    })
+    if (!userRes.ok) {
+    }
+    const userResData = await userRes.json()
+    console.log(userResData)
   }
 
   return (
@@ -67,11 +91,11 @@ export default function GroupResister() {
             }}
           />
           <Input
-            type="email"
+            type="mail"
             title="メールアドレス"
-            elementName="email"
+            elementName="mail"
             onChange={(e) => {
-              setEmail(e.target.value)
+              setMail(e.target.value)
             }}
           />
           <Input
