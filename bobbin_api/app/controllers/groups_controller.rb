@@ -1,12 +1,10 @@
 class GroupsController < ApplicationController
   def create
-    group = Group.new(group_params)
-
     ActiveRecord::Base.transaction do
-      group.save!
+      group = Group.create!(group_params)
+      user = User.create!(user_params.merge(group_id: group.id))
+      render json: { group:, user: }, status: :created
     end
-
-    render json: { id: group.id }, status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
@@ -17,5 +15,17 @@ class GroupsController < ApplicationController
 
   def group_params
     params.require(:group).permit(:group_name)
+  end
+
+  def user_params
+    params.require(:user).permit(
+      :first_name,
+      :last_name,
+      :mail,
+      :is_admin,
+      :is_active,
+      :password,
+      :password_confirmation
+    )
   end
 end

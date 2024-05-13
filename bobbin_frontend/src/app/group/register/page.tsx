@@ -17,29 +17,11 @@ export default function GroupResister() {
   const handlePostGroup = async () => {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
-    const groupData = {
+    const groupAndUserData = {
       group: {
         group_name: groupName,
       },
-    }
-    const groupRes = await fetch(`${apiEndpoint}/api/groups`, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify(groupData),
-    })
-    if (!groupRes.ok) {
-      const groupResData: ErrorsApiResponse = await groupRes.json()
-      throw new Error(groupResData.errors.join(','))
-    }
-    const groupResData = await groupRes.json()
-    const groupId = groupResData.id
-    console.log(groupId)
-
-    const userData = {
       user: {
-        group_id: groupId,
         first_name: firstName,
         last_name: lastName,
         mail,
@@ -49,17 +31,20 @@ export default function GroupResister() {
         password_confirmation: passwordConfirmation,
       },
     }
-    const userRes = await fetch(`${apiEndpoint}/api/groups/${groupId}/users`, {
+    const res = await fetch(`${apiEndpoint}/api/groups`, {
       method: 'POST',
       headers: {
         'Content-type': 'application/json',
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(groupAndUserData),
     })
-    if (!userRes.ok) {
+    if (res.ok) {
+      const data = await res.json()
+      console.log(data)
+    } else {
+      const data: ErrorsApiResponse = await res.json()
+      throw new Error(data.errors.join(','))
     }
-    const userResData = await userRes.json()
-    console.log(userResData)
   }
 
   return (
