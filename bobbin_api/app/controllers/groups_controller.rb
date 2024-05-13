@@ -16,9 +16,6 @@ class GroupsController < ApplicationController
   private
 
   def group_params
-    params.permit(:group_name)
-    # paramsの値がなぜか "group"=>{"group_name"=>"xxx"} のようにラップされる現象が起きている
-    # 続くようなら以下にする?
-    # params.require(:group).permit(:group_name)
+    params.require(:group).permit(:group_name)
   end
 end

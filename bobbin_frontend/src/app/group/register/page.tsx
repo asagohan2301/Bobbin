@@ -18,7 +18,9 @@ export default function GroupResister() {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
     const groupData = {
-      group_name: groupName,
+      group: {
+        group_name: groupName,
+      },
     }
     const groupRes = await fetch(`${apiEndpoint}/api/groups`, {
       method: 'POST',
