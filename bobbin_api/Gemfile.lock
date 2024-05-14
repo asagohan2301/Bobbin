@@ -106,6 +106,10 @@ GEM
       irb (~> 1.10)
       reline (>= 0.3.8)
     diff-lcs (1.5.1)
+    dotenv (3.1.2)
+    dotenv-rails (3.1.2)
+      dotenv (= 3.1.2)
+      railties (>= 6.1)
     drb (2.2.1)
     erubi (1.12.0)
     ffi (1.16.3)
@@ -122,6 +126,8 @@ GEM
       reline (>= 0.4.2)
     jmespath (1.6.2)
     json (2.7.1)
+    jwt (2.8.1)
+      base64
     language_server-protocol (3.17.0.3)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -290,7 +296,9 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   bootsnap
   debug
+  dotenv-rails
   image_processing (~> 1.2)
+  jwt
   mysql2 (~> 0.5)
   puma (>= 5.0)
   rack-cors

@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   scope '/api' do
+    post 'login', to: 'sessions#create'
+
     resources :groups do
       resources :products do
         resources :files, only: [:destroy] do
