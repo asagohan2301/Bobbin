@@ -3,18 +3,19 @@ Rails.application.routes.draw do
 
   scope '/api' do
     resources :groups do
-      resources :users
-    end
-    resources :products do
-      resources :files, only: [:destroy] do
-        member do
-          get 'proxy', to: 'files#proxy'
+      resources :products do
+        resources :files, only: [:destroy] do
+          member do
+            get 'proxy', to: 'files#proxy'
+          end
         end
       end
+      resources :product_types, path: 'product-types'
+      resources :customers
+      resources :users do
+        resources :filters
+      end
+      resources :progresses
     end
-    resources :product_types, path: 'product-types'
-    resources :customers
-    resources :progresses
-    resources :filters
   end
 end

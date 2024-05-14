@@ -199,31 +199,35 @@ export default function ProductForm(props: ProductFormProps) {
   // select 要素のオプションを取得
   const handleGetSelectOptions = async () => {
     try {
-      const productTypesData =
-        await getSelectOptions<ProductTypesApiResponse>('product-types')
+      const productTypesData = await getSelectOptions<ProductTypesApiResponse>(
+        '/groups/1/product-types',
+      )
       if (productTypesData.product_types.length > 0) {
         setProductTypes(productTypesData.product_types)
       } else {
         throw new Error('種別のデータがありません')
       }
 
-      const customersData =
-        await getSelectOptions<CustomersApiResponse>('customers')
+      const customersData = await getSelectOptions<CustomersApiResponse>(
+        '/groups/1/customers',
+      )
       if (customersData.customers.length > 0) {
         setCustomers(customersData.customers)
       } else {
         throw new Error('顧客のデータがありません')
       }
 
-      const usersData = await getSelectOptions<UsersApiResponse>('users')
+      const usersData =
+        await getSelectOptions<UsersApiResponse>('/groups/1/users')
       if (usersData.users.length > 0) {
         setUsers(usersData.users)
       } else {
         throw new Error('ユーザーのデータがありません')
       }
 
-      const progressesData =
-        await getSelectOptions<ProgressesApiResponse>('progresses')
+      const progressesData = await getSelectOptions<ProgressesApiResponse>(
+        '/groups/1/progresses',
+      )
       if (progressesData.progresses.length > 0) {
         setProgresses(progressesData.progresses)
         setProgressId(progressesData.progresses[0].id)

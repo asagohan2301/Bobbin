@@ -7,7 +7,7 @@ import type {
 const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
 export const getProducts = async (): Promise<ProductsApiResponse> => {
-  const res = await fetch(`${apiEndpoint}/api/products`)
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products`)
   if (res.ok) {
     const data: ProductsApiResponse = await res.json()
     return data
@@ -17,7 +17,7 @@ export const getProducts = async (): Promise<ProductsApiResponse> => {
 }
 
 export const getProduct = async (id: string): Promise<ProductApiResponse> => {
-  const res = await fetch(`${apiEndpoint}/api/products/${id}`)
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products/${id}`)
   if (res.ok) {
     const data: ProductApiResponse = await res.json()
     return data
@@ -50,7 +50,7 @@ export const postProduct = async (
     productIconBlob,
   )
 
-  const res = await fetch(`${apiEndpoint}/api/products`, {
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products`, {
     method: 'POST',
     body: productFormData,
   })
@@ -87,7 +87,7 @@ export const updateProduct = async (
     productIconBlob,
   )
 
-  const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products/${productId}`, {
     method: 'PUT',
     body: productFormData,
   })
@@ -101,7 +101,7 @@ export const updateProduct = async (
 }
 
 export const destroyProduct = async (id: string): Promise<boolean> => {
-  const res = await fetch(`${apiEndpoint}/api/products/${id}`, {
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products/${id}`, {
     method: 'DELETE',
   })
   if (res.ok) {
@@ -129,7 +129,7 @@ export const updateProgressStatus = async (
 ): Promise<ProductApiResponse> => {
   const productFormData = new FormData()
   productFormData.append('progress_id', progressId.toString())
-  const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
+  const res = await fetch(`${apiEndpoint}/api/groups/1/products/${productId}`, {
     method: 'PUT',
     body: productFormData,
   })
@@ -143,7 +143,7 @@ export const updateProgressStatus = async (
 
 export const destroyFile = async (productId: number, fileId: number) => {
   const res = await fetch(
-    `${apiEndpoint}/api/products/${productId}/files/${fileId}`,
+    `${apiEndpoint}/api/groups/1/products/${productId}/files/${fileId}`,
     {
       method: 'DELETE',
     },
