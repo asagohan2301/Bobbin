@@ -66,16 +66,14 @@ export default function Home() {
   })
 
   const getProgressData = async () => {
-    const progressData = await getSelectOptions<ProgressesApiResponse>(
-      '/groups/1/progresses',
-    )
+    const progressData =
+      await getSelectOptions<ProgressesApiResponse>('progresses')
     setProgresses(progressData.progresses)
   }
 
   const getFilterData = async () => {
-    const filterData = await getSelectOptions<FiltersApiResponse>(
-      '/groups/1/users/1/filters',
-    )
+    const filterData =
+      await getSelectOptions<FiltersApiResponse>('users/1/filters')
     setFilters(filterData.filters)
   }
 

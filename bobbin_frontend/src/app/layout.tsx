@@ -1,4 +1,3 @@
-import { LoginUserContextProvider } from '@/contexts/LoginUserContext'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
@@ -17,9 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <LoginUserContextProvider>{children}</LoginUserContextProvider>
-      </body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

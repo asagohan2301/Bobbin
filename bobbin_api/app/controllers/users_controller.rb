@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
   def index
-    users = User.where(group_id: 1)
+    users = User.where(group_id: @current_group_id)
     formatted_users = users.map do |user|
       {
         id: user.id,

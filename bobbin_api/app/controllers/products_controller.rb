@@ -4,7 +4,7 @@ class ProductsController < ApplicationController
   rescue_from ActiveRecord::RecordNotUnique, with: :handle_unique_constraint_violation
 
   def index
-    products = Product.all
+    products = Product.where(group_id: @current_group_id)
     formatted_products = products.map { |product| format_product_response(product) }
     render json: { products: formatted_products }, status: :ok
   end
@@ -116,7 +116,6 @@ class ProductsController < ApplicationController
   def product_params
     permitted_params = params.permit(
       :id,
-      :group_id,
       :product_type_id,
       :customer_id,
       :product_number,
@@ -128,6 +127,7 @@ class ProductsController < ApplicationController
     )
     permitted_params[:customer_id] = nil if permitted_params[:customer_id] == 'null'
     permitted_params[:user_id] = nil if permitted_params[:user_id] == 'null'
+    permitted_params[:group_id] = @current_group_id
     permitted_params
   end
 

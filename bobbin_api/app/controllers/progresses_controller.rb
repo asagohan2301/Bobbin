@@ -1,6 +1,6 @@
 class ProgressesController < ApplicationController
   def index
-    progresses = Progress.where(group_id: 1).order(:order)
+    progresses = Progress.where(group_id: @current_group_id).order(:order)
     formatted_progresses = progresses.map do |progress|
       {
         id: progress.id,

@@ -53,7 +53,6 @@ type ProductFormProps = {
   currentProductIconUrl?: string | null
   submitButtonTitle: string
   submitButtonAction: (
-    groupId: number,
     productTypeId: number,
     customerId: number | null,
     productNumber: string,
@@ -87,7 +86,6 @@ export default function ProductForm(props: ProductFormProps) {
     responseErrorMessages,
   } = props
 
-  const groupId = 1
   const [productTypes, setProductTypes] = useState<ProductTypeApiResponse[]>([])
   const [productTypeId, setProductTypeId] = useState<number | null>(
     currentProductTypeId || null,
@@ -184,7 +182,6 @@ export default function ProductForm(props: ProductFormProps) {
     }
 
     await submitButtonAction(
-      groupId,
       productTypeId as number,
       customerId,
       productNumber,
@@ -199,35 +196,31 @@ export default function ProductForm(props: ProductFormProps) {
   // select 要素のオプションを取得
   const handleGetSelectOptions = async () => {
     try {
-      const productTypesData = await getSelectOptions<ProductTypesApiResponse>(
-        '/groups/1/product-types',
-      )
+      const productTypesData =
+        await getSelectOptions<ProductTypesApiResponse>('product-types')
       if (productTypesData.product_types.length > 0) {
         setProductTypes(productTypesData.product_types)
       } else {
         throw new Error('種別のデータがありません')
       }
 
-      const customersData = await getSelectOptions<CustomersApiResponse>(
-        '/groups/1/customers',
-      )
+      const customersData =
+        await getSelectOptions<CustomersApiResponse>('customers')
       if (customersData.customers.length > 0) {
         setCustomers(customersData.customers)
       } else {
         throw new Error('顧客のデータがありません')
       }
 
-      const usersData =
-        await getSelectOptions<UsersApiResponse>('/groups/1/users')
+      const usersData = await getSelectOptions<UsersApiResponse>('users')
       if (usersData.users.length > 0) {
         setUsers(usersData.users)
       } else {
         throw new Error('ユーザーのデータがありません')
       }
 
-      const progressesData = await getSelectOptions<ProgressesApiResponse>(
-        '/groups/1/progresses',
-      )
+      const progressesData =
+        await getSelectOptions<ProgressesApiResponse>('progresses')
       if (progressesData.progresses.length > 0) {
         setProgresses(progressesData.progresses)
         setProgressId(progressesData.progresses[0].id)

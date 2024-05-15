@@ -2,10 +2,9 @@
 
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import Input from '@/components/Input'
-import { LoginUserContext } from '@/contexts/LoginUserContext'
 import type { ErrorsApiResponse } from '@/types/errorTypes'
 import { useRouter } from 'next/navigation'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { Check, X } from 'react-bootstrap-icons'
 import { setCookie } from '../../utils/cookieUtils'
 
@@ -14,13 +13,6 @@ export default function Login() {
   const [password, setPassword] = useState<string>('')
 
   const router = useRouter()
-
-  const context = useContext(LoginUserContext)
-  if (!context) {
-    console.error('コンテキストの取得に失敗しました')
-    return
-  }
-  const { setLoginUserGroupId, setLoginUserId } = context
 
   const handleLogin = async () => {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
@@ -42,8 +34,6 @@ export default function Login() {
       await setCookie('firstName', user.first_name)
       await setCookie('lastName', user.last_name)
       await setCookie('token', user.token)
-      setLoginUserGroupId(user.group_id)
-      setLoginUserId(user.user_id)
       router.push('/')
     } else {
       const data: ErrorsApiResponse = await res.json()
