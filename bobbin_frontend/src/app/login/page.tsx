@@ -3,10 +3,10 @@
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import Input from '@/components/Input'
 import type { ErrorsApiResponse } from '@/types/errorTypes'
+import { setCookie } from '@/utils/cookieUtils'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { Check, X } from 'react-bootstrap-icons'
-import { setCookie } from '../../utils/cookieUtils'
 
 export default function Login() {
   const [mail, setMail] = useState<string>('')
