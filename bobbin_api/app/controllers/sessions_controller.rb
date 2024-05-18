@@ -1,5 +1,6 @@
 class SessionsController < ApplicationController
   wrap_parameters false
+  skip_before_action :authenticate_user, only: [:create]
 
   def create
     user = User.includes(:group).find_by(mail: params[:mail])
