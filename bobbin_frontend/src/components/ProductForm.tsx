@@ -18,6 +18,7 @@ import type {
   UserApiResponse,
   UsersApiResponse,
 } from '@/types/productTypes'
+import { getCookie } from '@/utils/cookieUtils'
 import { getCroppedImg } from '@/utils/cropUtils'
 import {
   calculateFilesTotalSize,
@@ -26,6 +27,7 @@ import {
   removeNewFile,
 } from '@/utils/fileUtils'
 import { validateProductForm } from '@/utils/validateUtils'
+import { useRouter } from 'next/navigation'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -131,9 +133,26 @@ export default function ProductForm(props: ProductFormProps) {
   const [productIconCroppedImageUrl, setProductIconCroppedImageUrl] =
     useState<string>(currentProductIconUrl || '')
 
+  const [loading, setLoading] = useState(true)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const productIconImgRef = useRef<HTMLImageElement>(null)
   const productIconInputRef = useRef<HTMLInputElement>(null)
+
+  const router = useRouter()
+
+  // トークンが Cookie に存在しているか検証
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await getCookie('token')
+      if (!token) {
+        router.push('/login')
+      } else {
+        setLoading(false)
+      }
+    }
+    checkToken()
+  }, [router])
 
   // ページ読み込み時に select 要素のオプションを取得
   useEffect(() => {
@@ -330,6 +349,10 @@ export default function ProductForm(props: ProductFormProps) {
         console.error(error)
       }
     }
+  }
+
+  if (loading) {
+    return <p>loading...</p>
   }
 
   return (

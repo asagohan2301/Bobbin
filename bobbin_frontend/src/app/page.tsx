@@ -14,8 +14,10 @@ import type {
   ProgressApiResponse,
   ProgressesApiResponse,
 } from '@/types/productTypes'
+import { getCookie } from '@/utils/cookieUtils'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   ChevronDown,
@@ -33,6 +35,23 @@ export default function Home() {
   const [progresses, setProgresses] = useState<ProgressApiResponse[]>([])
   const [filters, setFilters] = useState<FilterApiResponse[]>([])
   const [filterName, setFilterName] = useState<string>('すべて')
+
+  const [loading, setLoading] = useState(true)
+
+  const router = useRouter()
+
+  // トークンが Cookie に存在しているか検証
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await getCookie('token')
+      if (!token) {
+        router.push('/login')
+      } else {
+        setLoading(false)
+      }
+    }
+    checkToken()
+  }, [router])
 
   useEffect(() => {
     getProducts()
@@ -96,6 +115,10 @@ export default function Home() {
       })
   }
 
+  if (loading || products.length === 0) {
+    return <p>loading...</p>
+  }
+
   if (errorMessages.length > 0) {
     return (
       <ul>
@@ -104,10 +127,6 @@ export default function Home() {
         ))}
       </ul>
     )
-  }
-
-  if (products.length === 0) {
-    return <p>loading...</p>
   }
 
   return (
