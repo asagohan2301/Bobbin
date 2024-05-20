@@ -1,16 +1,19 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 
 type InputProps = {
-  title: string
-  elementName: string
+  type: string
+  title?: string
   onChange: React.ChangeEventHandler<HTMLInputElement>
   currentValue?: string
+  placeholder?: string
+  children?: ReactNode
 }
 
 export default function Input(props: InputProps) {
-  const { title, elementName, onChange, currentValue } = props
+  const { type, title, onChange, currentValue, placeholder, children } = props
   const [inputValue, setInputValue] = useState<string>(currentValue || '')
 
   const handleOnChange: React.ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -20,13 +23,17 @@ export default function Input(props: InputProps) {
 
   return (
     <div className="mb-4 flex flex-col">
-      <label htmlFor={elementName}>{title}</label>
+      {title ? (
+        <p className="mb-[3px] text-[13px]">{title}</p>
+      ) : (
+        <p className="mb-[3px] text-[13px]">{children}</p>
+      )}
       <input
-        type="text"
-        id={elementName}
+        type={type}
         onChange={handleOnChange}
-        className="rounded border border-gray-500 p-2"
+        className="rounded border border-gray-400 p-2 text-[15px]"
         value={inputValue}
+        placeholder={placeholder}
       />
     </div>
   )

@@ -1,24 +1,12 @@
-class UsersController < ApplicationController
-  def index
-    users = User.where(group_id: @current_group_id)
-    formatted_users = users.map do |user|
-      {
-        id: user.id,
-        first_name: user.first_name,
-        last_name: user.last_name
-      }
-    end
-    render json: { users: formatted_users }, status: :ok
-  end
+class GroupsController < ApplicationController
+  skip_before_action :authenticate_user, only: [:create]
 
   def create
-    user = User.new(user_params)
-
     ActiveRecord::Base.transaction do
-      user.save!
+      group = Group.create!(group_params)
+      user = User.create!(user_params.merge(group_id: group.id))
+      render json: { group:, user: }, status: :created
     end
-
-    render json: { id: user.id }, status: :created
   rescue ActiveRecord::RecordInvalid => e
     render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
@@ -27,9 +15,12 @@ class UsersController < ApplicationController
 
   private
 
+  def group_params
+    params.require(:group).permit(:group_name)
+  end
+
   def user_params
     params.require(:user).permit(
-      :group_id,
       :first_name,
       :last_name,
       :mail,

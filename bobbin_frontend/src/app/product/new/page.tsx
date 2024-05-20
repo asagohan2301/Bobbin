@@ -13,7 +13,6 @@ export default function New() {
   const router = useRouter()
 
   const handlePostProduct = async (
-    groupId: number,
     productTypeId: number,
     customerId: number | null,
     productNumber: string,
@@ -25,7 +24,6 @@ export default function New() {
   ) => {
     try {
       const id = await postProduct(
-        groupId,
         productTypeId,
         customerId,
         productNumber,

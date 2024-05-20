@@ -2,6 +2,8 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
   scope '/api' do
+    post 'login', to: 'sessions#create'
+    resources :groups
     resources :products do
       resources :files, only: [:destroy] do
         member do
@@ -11,8 +13,9 @@ Rails.application.routes.draw do
     end
     resources :product_types, path: 'product-types'
     resources :customers
-    resources :users
+    resources :users do
+      resources :filters
+    end
     resources :progresses
-    resources :filters
   end
 end

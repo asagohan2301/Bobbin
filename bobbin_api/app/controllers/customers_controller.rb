@@ -1,6 +1,6 @@
 class CustomersController < ApplicationController
   def index
-    customers = Customer.where(group_id: 1)
+    customers = Customer.where(group_id: @current_group_id)
     formatted_customers = customers.map do |customer|
       {
         id: customer.id,

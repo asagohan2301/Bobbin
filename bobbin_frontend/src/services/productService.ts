@@ -3,11 +3,17 @@ import type {
   ProductApiResponse,
   ProductsApiResponse,
 } from '@/types/productTypes'
+import { getCookie } from '@/utils/cookieUtils'
 
 const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
 
 export const getProducts = async (): Promise<ProductsApiResponse> => {
-  const res = await fetch(`${apiEndpoint}/api/products`)
+  const token = await getCookie('token')
+  const res = await fetch(`${apiEndpoint}/api/products`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
   if (res.ok) {
     const data: ProductsApiResponse = await res.json()
     return data
@@ -17,7 +23,12 @@ export const getProducts = async (): Promise<ProductsApiResponse> => {
 }
 
 export const getProduct = async (id: string): Promise<ProductApiResponse> => {
-  const res = await fetch(`${apiEndpoint}/api/products/${id}`)
+  const token = await getCookie('token')
+  const res = await fetch(`${apiEndpoint}/api/products/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
   if (res.ok) {
     const data: ProductApiResponse = await res.json()
     return data
@@ -28,7 +39,6 @@ export const getProduct = async (id: string): Promise<ProductApiResponse> => {
 }
 
 export const postProduct = async (
-  groupId: number,
   productTypeId: number,
   customerId: number | null,
   productNumber: string,
@@ -39,7 +49,6 @@ export const postProduct = async (
   productIconBlob: Blob | undefined,
 ): Promise<string> => {
   const productFormData = makeFormData(
-    groupId,
     productTypeId,
     customerId,
     productNumber,
@@ -50,8 +59,12 @@ export const postProduct = async (
     productIconBlob,
   )
 
+  const token = await getCookie('token')
   const res = await fetch(`${apiEndpoint}/api/products`, {
     method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: productFormData,
   })
   if (res.ok) {
@@ -65,7 +78,6 @@ export const postProduct = async (
 
 export const updateProduct = async (
   productId: string,
-  groupId: number,
   productTypeId: number,
   customerId: number | null,
   productNumber: string,
@@ -76,7 +88,6 @@ export const updateProduct = async (
   productIconBlob: Blob | undefined,
 ): Promise<string> => {
   const productFormData = makeFormData(
-    groupId,
     productTypeId,
     customerId,
     productNumber,
@@ -87,8 +98,12 @@ export const updateProduct = async (
     productIconBlob,
   )
 
+  const token = await getCookie('token')
   const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
     method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: productFormData,
   })
   if (res.ok) {
@@ -101,8 +116,12 @@ export const updateProduct = async (
 }
 
 export const destroyProduct = async (id: string): Promise<boolean> => {
+  const token = await getCookie('token')
   const res = await fetch(`${apiEndpoint}/api/products/${id}`, {
     method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   })
   if (res.ok) {
     return true
@@ -113,8 +132,12 @@ export const destroyProduct = async (id: string): Promise<boolean> => {
 }
 
 export const getSelectOptions = async <T>(resource: string): Promise<T> => {
-  const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
-  const res = await fetch(`${apiEndpoint}/api/${resource}`)
+  const token = await getCookie('token')
+  const res = await fetch(`${apiEndpoint}/api/${resource}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
   if (res.ok) {
     const data = (await res.json()) as T
     return data
@@ -127,10 +150,14 @@ export const updateProgressStatus = async (
   productId: number,
   progressId: number,
 ): Promise<ProductApiResponse> => {
+  const token = await getCookie('token')
   const productFormData = new FormData()
   productFormData.append('progress_id', progressId.toString())
   const res = await fetch(`${apiEndpoint}/api/products/${productId}`, {
     method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
     body: productFormData,
   })
   if (res.ok) {
@@ -142,10 +169,14 @@ export const updateProgressStatus = async (
 }
 
 export const destroyFile = async (productId: number, fileId: number) => {
+  const token = await getCookie('token')
   const res = await fetch(
     `${apiEndpoint}/api/products/${productId}/files/${fileId}`,
     {
       method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     },
   )
   if (res.ok) {
@@ -157,7 +188,6 @@ export const destroyFile = async (productId: number, fileId: number) => {
 }
 
 const makeFormData = (
-  groupId: number,
   productTypeId: number,
   customerId: number | null,
   productNumber: string,
@@ -169,7 +199,6 @@ const makeFormData = (
 ) => {
   const productFormData = new FormData()
 
-  productFormData.append('group_id', groupId.toString())
   productFormData.append('product_type_id', productTypeId.toString())
   if (customerId === null) {
     productFormData.append('customer_id', 'null')

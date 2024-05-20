@@ -33,7 +33,6 @@ export default function Edit({ params }: { params: Params }) {
   const router = useRouter()
 
   const handleUpdateProduct = async (
-    groupId: number,
     productTypeId: number,
     customerId: number | null,
     productNumber: string,
@@ -46,7 +45,6 @@ export default function Edit({ params }: { params: Params }) {
     try {
       const id = await updateProduct(
         params.id,
-        groupId,
         productTypeId,
         customerId,
         productNumber,

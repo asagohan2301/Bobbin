@@ -18,6 +18,7 @@ import type {
   UserApiResponse,
   UsersApiResponse,
 } from '@/types/productTypes'
+import { getCookie } from '@/utils/cookieUtils'
 import { getCroppedImg } from '@/utils/cropUtils'
 import {
   calculateFilesTotalSize,
@@ -26,6 +27,7 @@ import {
   removeNewFile,
 } from '@/utils/fileUtils'
 import { validateProductForm } from '@/utils/validateUtils'
+import { useRouter } from 'next/navigation'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import {
@@ -53,7 +55,6 @@ type ProductFormProps = {
   currentProductIconUrl?: string | null
   submitButtonTitle: string
   submitButtonAction: (
-    groupId: number,
     productTypeId: number,
     customerId: number | null,
     productNumber: string,
@@ -87,7 +88,6 @@ export default function ProductForm(props: ProductFormProps) {
     responseErrorMessages,
   } = props
 
-  const groupId = 1
   const [productTypes, setProductTypes] = useState<ProductTypeApiResponse[]>([])
   const [productTypeId, setProductTypeId] = useState<number | null>(
     currentProductTypeId || null,
@@ -133,9 +133,26 @@ export default function ProductForm(props: ProductFormProps) {
   const [productIconCroppedImageUrl, setProductIconCroppedImageUrl] =
     useState<string>(currentProductIconUrl || '')
 
+  const [loading, setLoading] = useState(true)
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const productIconImgRef = useRef<HTMLImageElement>(null)
   const productIconInputRef = useRef<HTMLInputElement>(null)
+
+  const router = useRouter()
+
+  // トークンが Cookie に存在しているか検証
+  useEffect(() => {
+    const checkToken = async () => {
+      const token = await getCookie('token')
+      if (!token) {
+        router.push('/login')
+      } else {
+        setLoading(false)
+      }
+    }
+    checkToken()
+  }, [router])
 
   // ページ読み込み時に select 要素のオプションを取得
   useEffect(() => {
@@ -184,7 +201,6 @@ export default function ProductForm(props: ProductFormProps) {
     }
 
     await submitButtonAction(
-      groupId,
       productTypeId as number,
       customerId,
       productNumber,
@@ -335,6 +351,10 @@ export default function ProductForm(props: ProductFormProps) {
     }
   }
 
+  if (loading) {
+    return <p>loading...</p>
+  }
+
   return (
     <div>
       <div className="relative mx-auto max-w-[1440px] px-14 py-5">
@@ -428,7 +448,6 @@ export default function ProductForm(props: ProductFormProps) {
             <form>
               <Select<ProductTypeApiResponse>
                 title="種別"
-                elementName="productType"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setProductTypeId(null)
@@ -446,7 +465,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<CustomerApiResponse>
                 title="お客様名"
-                elementName="customer"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setCustomerId(null)
@@ -461,16 +479,16 @@ export default function ProductForm(props: ProductFormProps) {
                 disabled={productTypeId === 1}
               />
               <Input
+                type="text"
                 title="品番"
-                elementName="productNumber"
                 onChange={(e) => {
                   setProductNumber(e.target.value)
                 }}
                 currentValue={currentProductNumber}
               />
               <Input
+                type="text"
                 title="品名"
-                elementName="productName"
                 onChange={(e) => {
                   setProductName(e.target.value)
                 }}
@@ -478,7 +496,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<UserApiResponse>
                 title="担当者"
-                elementName="user"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setUserId(null)
@@ -494,7 +511,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<ProgressApiResponse>
                 title="進捗"
-                elementName="progress"
                 onChange={(e) => {
                   setProgressId(parseInt(e.target.value))
                 }}
