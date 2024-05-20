@@ -1,18 +1,29 @@
 'use client'
 
-import ButtonWithIcon from '@/components/ButtonWithIcon'
 import Input from '@/components/Input'
+import TopImage from '@/components/TopImage'
 import type { ErrorsApiResponse } from '@/types/errorTypes'
 import { setCookie } from '@/utils/cookieUtils'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { Check, X } from 'react-bootstrap-icons'
+import { useEffect, useState } from 'react'
 
 export default function Login() {
   const [mail, setMail] = useState<string>('')
   const [password, setPassword] = useState<string>('')
+  const [triggerLogin, setTriggerLogin] = useState<boolean>(false)
+
+  useEffect(() => {
+    if (triggerLogin) {
+      handleLogin()
+      setTriggerLogin(false)
+    }
+  }, [triggerLogin])
 
   const router = useRouter()
+
+  const testUserMail = 'miho@mail'
+  const testUserPassword = 'miho'
 
   const handleLogin = async () => {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
@@ -42,43 +53,51 @@ export default function Login() {
   }
 
   return (
-    <div>
-      <div className="relative mx-auto max-w-[1440px] px-14 py-5">
-        <h2>ログイン</h2>
-        <form>
-          <Input
-            type="mail"
-            title="メールアドレス"
-            elementName="mail"
-            onChange={(e) => {
-              setMail(e.target.value)
+    <div className="flex min-h-screen">
+      <TopImage />
+      <div className="flex flex-1 items-center justify-center">
+        <div className="w-[43%]">
+          <form className="mb-8">
+            <Input
+              type="mail"
+              title="メールアドレス"
+              onChange={(e) => {
+                setMail(e.target.value)
+              }}
+            />
+            <Input
+              type="password"
+              title="パスワード"
+              onChange={(e) => {
+                setPassword(e.target.value)
+              }}
+            />
+          </form>
+          <button
+            className="mb-5 block w-full rounded bg-[#FF997E] px-12 py-3 text-sm text-white"
+            onClick={() => {
+              setTriggerLogin(true)
             }}
-          />
-          <Input
-            type="password"
-            title="パスワード"
-            elementName="password"
-            onChange={(e) => {
-              setPassword(e.target.value)
+          >
+            ログイン
+          </button>
+          <Link href="/group/register" className="mb-3 block text-[13px]">
+            <p className="text-gray-400">アカウントをお持ちでない方はこちら</p>
+            <p className="text-[14px] text-[#F9816C]">新規登録</p>
+          </Link>
+          <div
+            className="cursor-pointer text-[13px]"
+            onClick={() => {
+              setMail(testUserMail)
+              setPassword(testUserPassword)
+              setTriggerLogin(true)
             }}
-          />
-        </form>
-        <div className="flex justify-end gap-4">
-          <ButtonWithIcon
-            IconComponent={X}
-            label="キャンセル"
-            href="/"
-            isCancel={true}
-          />
-          <ButtonWithIcon
-            IconComponent={Check}
-            label="ログイン"
-            onClick={handleLogin}
-            isConfirm={true}
-          />
+          >
+            <p className="text-gray-400">お試しはこちら</p>
+            <p className="text-[#F9816C]">ゲストアカウントでログイン</p>
+          </div>
         </div>
       </div>
-      <footer className="h-8 w-full"></footer>
     </div>
   )
 }

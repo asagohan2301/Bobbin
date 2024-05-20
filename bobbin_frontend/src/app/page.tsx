@@ -139,7 +139,7 @@ export default function Home() {
               <li
                 className={
                   filterName === 'すべて'
-                    ? 'relative cursor-pointer font-bold text-[#FFA471]'
+                    ? 'relative cursor-pointer font-bold text-[#FF997E]'
                     : 'cursor-pointer'
                 }
                 onClick={() => {
@@ -148,7 +148,7 @@ export default function Home() {
               >
                 <p>すべて</p>
                 {filterName === 'すべて' && (
-                  <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
+                  <div className="absolute top-7 h-1.5 w-full bg-[#FF997E]"></div>
                 )}
               </li>
               {filters.map((filter) => {
@@ -157,7 +157,7 @@ export default function Home() {
                     key={filter.id}
                     className={
                       filterName === filter.filter_name
-                        ? 'relative cursor-pointer font-bold text-[#FFA471]'
+                        ? 'relative cursor-pointer font-bold text-[#FF997E]'
                         : 'cursor-pointer'
                     }
                     onClick={() => {
@@ -166,7 +166,7 @@ export default function Home() {
                   >
                     <p>{filter.filter_name}</p>
                     {filterName === filter.filter_name && (
-                      <div className="absolute top-7 h-1.5 w-full bg-[#FFA471]"></div>
+                      <div className="absolute top-7 h-1.5 w-full bg-[#FF997E]"></div>
                     )}
                   </li>
                 )
@@ -219,7 +219,7 @@ export default function Home() {
                   onMouseLeave={() => {
                     setHoveredProductId(null)
                   }}
-                  className={`box-border flex items-center border-b border-gray-400 p-6 transition ${isHoverd ? 'bg-[#FFF6ED]' : ''}`}
+                  className={`box-border flex items-center border-b border-gray-400 p-6 transition ${isHoverd ? 'bg-[#FFF8F1]' : ''}`}
                 >
                   <div className="flex-[5_5_0%] ">
                     <Link
@@ -281,7 +281,7 @@ export default function Home() {
                         { length: product.progress_order },
                         (_, index) => (
                           <div
-                            className="mr-1 size-4 bg-[#FFA471]"
+                            className="mr-1 size-4 bg-[#FF997E]"
                             key={index}
                           ></div>
                         ),
@@ -290,7 +290,7 @@ export default function Home() {
                         { length: 5 - product.progress_order },
                         (_, index) => (
                           <div
-                            className="mr-1 size-4 bg-[#FFE6CF]"
+                            className="mr-1 size-4 bg-[#FFE5D3]"
                             key={index}
                           ></div>
                         ),

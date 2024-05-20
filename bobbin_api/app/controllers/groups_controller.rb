@@ -1,4 +1,6 @@
 class GroupsController < ApplicationController
+  skip_before_action :authenticate_user, only: [:create]
+
   def create
     ActiveRecord::Base.transaction do
       group = Group.create!(group_params)

@@ -448,7 +448,6 @@ export default function ProductForm(props: ProductFormProps) {
             <form>
               <Select<ProductTypeApiResponse>
                 title="種別"
-                elementName="productType"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setProductTypeId(null)
@@ -466,7 +465,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<CustomerApiResponse>
                 title="お客様名"
-                elementName="customer"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setCustomerId(null)
@@ -483,7 +481,6 @@ export default function ProductForm(props: ProductFormProps) {
               <Input
                 type="text"
                 title="品番"
-                elementName="productNumber"
                 onChange={(e) => {
                   setProductNumber(e.target.value)
                 }}
@@ -492,7 +489,6 @@ export default function ProductForm(props: ProductFormProps) {
               <Input
                 type="text"
                 title="品名"
-                elementName="productName"
                 onChange={(e) => {
                   setProductName(e.target.value)
                 }}
@@ -500,7 +496,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<UserApiResponse>
                 title="担当者"
-                elementName="user"
                 onChange={(e) => {
                   if (e.target.value === 'null') {
                     setUserId(null)
@@ -516,7 +511,6 @@ export default function ProductForm(props: ProductFormProps) {
               />
               <Select<ProgressApiResponse>
                 title="進捗"
-                elementName="progress"
                 onChange={(e) => {
                   setProgressId(parseInt(e.target.value))
                 }}
