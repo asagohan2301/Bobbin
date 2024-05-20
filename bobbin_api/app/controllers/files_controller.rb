@@ -1,4 +1,6 @@
 class FilesController < ApplicationController
+  skip_before_action :authenticate_user, only: [:proxy]
+
   def proxy
     file = ActiveStorage::Blob.find(params[:id])
     data = file.download
