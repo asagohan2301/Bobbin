@@ -23,7 +23,7 @@ export default function Login() {
   const router = useRouter()
 
   const testUserMail = 'miho@mail'
-  const testUserPassword = 'miho'
+  const testUserPassword = 'miho0001'
 
   const handleLogin = async () => {
     const apiEndpoint = process.env.NEXT_PUBLIC_API_ENDPOINT
