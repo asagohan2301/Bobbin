@@ -16,7 +16,6 @@ import type {
   ProgressesApiResponse,
 } from '@/types/productTypes'
 import { getCookie } from '@/utils/cookieUtils'
-import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -24,6 +23,7 @@ import {
   ChevronDown,
   ChevronRight,
   PencilSquare,
+  Person,
   PlusLg,
   X,
 } from 'react-bootstrap-icons'
@@ -249,13 +249,9 @@ export default function Home() {
                   </div>
                   {product.user_id ? (
                     <div className="flex flex-[4_4_0%] items-center">
-                      <Image
-                        src="/bobbin_icon.png"
-                        width={36}
-                        height={36}
-                        alt="bobbin-icon"
-                        className="mr-2"
-                      />
+                      <div className="relative mr-2 size-[36px] rounded-full bg-[#FFD7BC]">
+                        <Person className="absolute inset-0 m-auto size-[22px] text-white" />
+                      </div>
                       <div>{`${product.user_last_name} ${product.user_first_name}`}</div>
                     </div>
                   ) : (
