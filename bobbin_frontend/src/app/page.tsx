@@ -233,7 +233,7 @@ export default function Home() {
                             : '/bobbin_icon.png'
                         }
                         alt="product_icon"
-                        className="border-box mr-2 size-[52px] rounded-full border border-gray-400"
+                        className="border-box mr-2 size-[52px] border border-gray-400"
                       />
                       <div className={isHoverd ? 'underline' : ''}>
                         {product.product_name}

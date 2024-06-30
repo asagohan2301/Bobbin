@@ -51,7 +51,7 @@ export default function Product({ params }: { params: Params }) {
                     : '/bobbin_icon.png'
                 }
                 alt="product_icon"
-                className="border-box mr-2 size-[60px] rounded-full border border-gray-400"
+                className="border-box mr-2 size-[60px] border border-gray-400"
               />
               <div>
                 <h1 className="text-2xl">{product.product_name}</h1>

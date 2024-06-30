@@ -372,7 +372,7 @@ export default function ProductForm(props: ProductFormProps) {
                       : '/bobbin_icon.png'
                   }
                   alt="product-icon"
-                  className="size-[120px] rounded-full border border-gray-500"
+                  className="size-[120px] border border-gray-500"
                 />
                 {/* productIcon選択 */}
                 <div>
@@ -409,7 +409,6 @@ export default function ProductForm(props: ProductFormProps) {
                   <ReactCrop
                     crop={crop}
                     onChange={(c) => setCrop(c)}
-                    circularCrop={true}
                     aspect={1}
                     onComplete={handleCompleteCrop}
                   >
