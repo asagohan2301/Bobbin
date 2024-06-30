@@ -1,5 +1,6 @@
 'use client'
 
+import BobbinIcon from '@/components/BobbinIcon.svg'
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import UserInfo from '@/components/UserInfo'
 import {
@@ -226,15 +227,16 @@ export default function Home() {
                       href={`/product/${product.id}`}
                       className="flex items-center"
                     >
-                      <img
-                        src={
-                          product.product_icon
-                            ? product.product_icon.url
-                            : '/bobbin_icon.png'
-                        }
-                        alt="product_icon"
-                        className="border-box mr-2 size-[52px] border border-gray-400"
-                      />
+                      <div className="border-box mr-2 size-[52px] border border-gray-400">
+                        {product.product_icon ? (
+                          <img
+                            src={product.product_icon.url}
+                            alt="product_icon"
+                          />
+                        ) : (
+                          <BobbinIcon fill="#FFD7BC" />
+                        )}
+                      </div>
                       <div className={isHoverd ? 'underline' : ''}>
                         {product.product_name}
                       </div>
