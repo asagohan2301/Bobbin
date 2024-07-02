@@ -642,15 +642,18 @@ export default function ProductForm(props: ProductFormProps) {
             onClick={handleSubmit}
             isConfirm={true}
           />
-          {showDestroyButton && (
-            <ButtonWithIcon
-              IconComponent={Trash3}
-              label="製品を削除"
-              onClick={destroyButtonAction}
-              isDestroy={true}
-            />
-          )}
         </div>
+        {showDestroyButton && (
+          <div className="mt-4 flex justify-end">
+            <div
+              onClick={destroyButtonAction}
+              className="flex cursor-pointer items-center gap-1 text-[14px] text-gray-400 hover:text-red-500"
+            >
+              <Trash3 />
+              <p>製品を削除</p>
+            </div>
+          </div>
+        )}
         {selectOptionsLoadErrorMessages.length > 0 && (
           <ErrorMessage errorMessages={selectOptionsLoadErrorMessages} />
         )}

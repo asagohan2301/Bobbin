@@ -25,11 +25,11 @@ export default function ButtonWithIcon(props: ButtonWithIconProps) {
   } = props
 
   const buttonClasses = classNames(
-    'flex items-center gap-2 rounded-lg px-5 py-3 text-sm',
+    'flex items-center gap-2 rounded-lg px-5 py-3 text-sm hover:opacity-70',
     {
       'border border-gray-500 text-gray-700': isRegular,
       'border border-gray-400 text-gray-500': isCancel,
-      'bg-blue-400 text-white': isConfirm,
+      'bg-[#FF997E] text-white': isConfirm,
       'bg-red-500 text-white': isDestroy,
     },
   )
