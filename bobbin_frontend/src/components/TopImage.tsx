@@ -6,7 +6,9 @@ export default function TopImage() {
           <p className="mb-4 text-center text-[13px] tracking-wider text-white">
             アパレル製品の管理をシンプルに
           </p>
-          <img src="/logo.png" alt="Bobbinロゴ" />
+          <h1>
+            <img src="/logo.png" alt="Bobbin" />
+          </h1>
         </div>
       </div>
     </div>
