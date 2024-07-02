@@ -1,5 +1,6 @@
 'use client'
 
+import BobbinIcon from '@/components/BobbinIcon.svg'
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import ImageFile from '@/components/ImageFile'
 import PdfFile from '@/components/PdfFile'
@@ -44,15 +45,13 @@ export default function Product({ params }: { params: Params }) {
         <div className="mb-10 flex items-center justify-between border-b border-gray-400">
           <div>
             <div className="mb-2 flex items-center">
-              <img
-                src={
-                  product.product_icon
-                    ? product.product_icon.url
-                    : '/bobbin_icon.png'
-                }
-                alt="product_icon"
-                className="border-box mr-2 size-[60px] rounded-full border border-gray-400"
-              />
+              <div className="border-box mr-2 size-[60px] border border-gray-400">
+                {product.product_icon ? (
+                  <img src={product.product_icon.url} alt="product-icon" />
+                ) : (
+                  <BobbinIcon fill="#FFD7BC" />
+                )}
+              </div>
               <div>
                 <h1 className="text-2xl">{product.product_name}</h1>
                 <h2 className="text-xl">{product.product_number}</h2>

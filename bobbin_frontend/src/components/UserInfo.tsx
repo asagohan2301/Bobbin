@@ -1,9 +1,8 @@
 'use client'
 
 import { getCookie } from '@/utils/cookieUtils'
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { ChevronDown } from 'react-bootstrap-icons'
+import { ChevronDown, Person } from 'react-bootstrap-icons'
 
 export default function UserInfo() {
   const [groupName, setGroupName] = useState<string>()
@@ -28,13 +27,9 @@ export default function UserInfo() {
     <div>
       <div className="mb-1">{groupName}</div>
       <div className="flex items-center">
-        <Image
-          src="/bobbin_icon.png"
-          width={27}
-          height={27}
-          alt="bobbin-icon"
-          className="mr-2"
-        />
+        <div className="relative mr-2 size-[28px] rounded-full bg-[#FFD7BC]">
+          <Person className="absolute inset-0 m-auto size-[16px] text-white" />
+        </div>
         <div className="mr-6">{`${lastName} ${firstName}`}</div>
         <ChevronDown />
       </div>

@@ -1,5 +1,6 @@
 'use client'
 
+import BobbinIcon from '@/components/BobbinIcon.svg'
 import ButtonWithIcon from '@/components/ButtonWithIcon'
 import ErrorMessage from '@/components/ErrorMessage'
 import Input from '@/components/Input'
@@ -365,17 +366,15 @@ export default function ProductForm(props: ProductFormProps) {
             <div>
               <p className="mb-2">製品サムネイル</p>
               <div className="mb-4 flex items-center gap-4">
-                <img
-                  src={
-                    productIconCroppedImageUrl
-                      ? productIconCroppedImageUrl
-                      : '/bobbin_icon.png'
-                  }
-                  alt="product-icon"
-                  className="size-[120px] rounded-full border border-gray-500"
-                />
+                <div className="size-[120px] border border-gray-500">
+                  {productIconCroppedImageUrl ? (
+                    <img src={productIconCroppedImageUrl} alt="product-icon" />
+                  ) : (
+                    <BobbinIcon fill="#FFD7BC" />
+                  )}
+                </div>
                 {/* productIcon選択 */}
-                <div>
+                <div className="flex-1">
                   <ButtonWithIcon
                     IconComponent={PencilSquare}
                     label="編集"
@@ -409,7 +408,6 @@ export default function ProductForm(props: ProductFormProps) {
                   <ReactCrop
                     crop={crop}
                     onChange={(c) => setCrop(c)}
-                    circularCrop={true}
                     aspect={1}
                     onComplete={handleCompleteCrop}
                   >
