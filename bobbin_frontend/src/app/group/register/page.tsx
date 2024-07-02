@@ -116,14 +116,16 @@ export default function GroupResister() {
             </Input>
           </form>
           <button
-            className="mb-5 block w-full rounded bg-[#FF997E] px-12 py-3 text-sm text-white"
+            className="mb-5 block w-full rounded bg-[#FF997E] px-12 py-3 text-sm text-white hover:opacity-80"
             onClick={handlePostGroup}
           >
             登録
           </button>
           <Link href="/login" className="mb-3 block text-[13px]">
             <p className="text-gray-400">すでにアカウントをお持ちですか？</p>
-            <p className="text-[14px] text-[#F9816C]">ログイン</p>
+            <p className="text-[14px] text-[#F9816C] hover:opacity-70">
+              ログイン
+            </p>
           </Link>
         </div>
       </div>

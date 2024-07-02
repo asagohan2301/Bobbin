@@ -140,8 +140,8 @@ export default function Home() {
               <li
                 className={
                   filterName === 'すべて'
-                    ? 'relative cursor-pointer font-bold text-[#FF997E]'
-                    : 'cursor-pointer'
+                    ? 'relative font-bold text-[#FF997E]'
+                    : 'cursor-pointer hover:opacity-70'
                 }
                 onClick={() => {
                   setFilterName('すべて')
@@ -158,8 +158,8 @@ export default function Home() {
                     key={filter.id}
                     className={
                       filterName === filter.filter_name
-                        ? 'relative cursor-pointer font-bold text-[#FF997E]'
-                        : 'cursor-pointer'
+                        ? 'relative font-bold text-[#FF997E]'
+                        : 'cursor-pointer hover:opacity-70'
                     }
                     onClick={() => {
                       setFilterName(filter.filter_name)
@@ -223,10 +223,7 @@ export default function Home() {
                   className={`box-border flex items-center border-b border-gray-400 p-6 transition ${isHoverd ? 'bg-[#FFF8F1]' : ''}`}
                 >
                   <div className="flex-[5_5_0%] ">
-                    <Link
-                      href={`/product/${product.id}`}
-                      className="flex items-center"
-                    >
+                    <div className="flex items-center">
                       <div className="border-box mr-2 size-[52px] border border-gray-400">
                         {product.product_icon ? (
                           <img
@@ -237,10 +234,13 @@ export default function Home() {
                           <BobbinIcon fill="#FFD7BC" />
                         )}
                       </div>
-                      <div className={isHoverd ? 'underline' : ''}>
+                      <Link
+                        href={`/product/${product.id}`}
+                        className="hover:text-[#FF997E] hover:underline"
+                      >
                         {product.product_name}
-                      </div>
-                    </Link>
+                      </Link>
+                    </div>
                   </div>
                   <div className="flex-[3_3_0%]">{product.product_number}</div>
                   <div className="flex-[3_3_0%]">{product.product_type}</div>
@@ -259,7 +259,7 @@ export default function Home() {
                   )}
                   <div className="relative flex-[4_4_0%]">
                     <div
-                      className="mb-2 flex cursor-pointer items-center"
+                      className="mb-2 flex cursor-pointer items-center hover:opacity-70"
                       onClick={() => {
                         setClickedProductId(product.id)
                       }}
@@ -304,7 +304,7 @@ export default function Home() {
                     >
                       <div className="absolute -right-3 -top-4 flex size-[36px] items-center justify-center rounded-full border border-gray-400 bg-white">
                         <X
-                          className="size-[24px] cursor-pointer"
+                          className="size-[24px] cursor-pointer hover:opacity-70"
                           onClick={() => {
                             setClickedProductId(null)
                           }}
@@ -336,7 +336,7 @@ export default function Home() {
                   <div className="flex flex-[2_2_0%] justify-end gap-x-6">
                     <div className="hover-info-wrapper relative">
                       <Link href={`/product/${product.id}/edit`}>
-                        <PencilSquare className="size-[21px] text-gray-700" />
+                        <PencilSquare className="size-[21px] text-gray-700 hover:opacity-80" />
                       </Link>
                       <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border border-gray-400 bg-white p-1 text-center text-xs">
                         編集
@@ -344,7 +344,7 @@ export default function Home() {
                     </div>
                     <div className="hover-info-wrapper relative">
                       <Link href={`/product/${product.id}`}>
-                        <ChevronRight className="size-[21px] text-gray-700" />
+                        <ChevronRight className="size-[21px] text-gray-700 hover:opacity-80" />
                       </Link>
                       <div className="hover-info absolute -top-7 left-1/2 hidden w-[44px] -translate-x-1/2 rounded-lg border border-gray-400 bg-white p-1 text-center text-xs">
                         詳細

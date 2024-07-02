@@ -74,7 +74,7 @@ export default function Login() {
             />
           </form>
           <button
-            className="mb-5 block w-full rounded bg-[#FF997E] px-12 py-3 text-sm text-white"
+            className="mb-5 block w-full rounded bg-[#FF997E] px-12 py-3 text-sm text-white hover:opacity-80"
             onClick={() => {
               setTriggerLogin(true)
             }}
@@ -83,7 +83,9 @@ export default function Login() {
           </button>
           <Link href="/group/register" className="mb-3 block text-[13px]">
             <p className="text-gray-400">アカウントをお持ちでない方はこちら</p>
-            <p className="text-[14px] text-[#F9816C]">新規登録</p>
+            <p className="text-[14px] text-[#F9816C] hover:opacity-70">
+              新規登録
+            </p>
           </Link>
           <div
             className="cursor-pointer text-[13px]"
@@ -94,7 +96,9 @@ export default function Login() {
             }}
           >
             <p className="text-gray-400">お試しはこちら</p>
-            <p className="text-[#F9816C]">ゲストアカウントでログイン</p>
+            <p className="text-[#F9816C] hover:opacity-70">
+              ゲストアカウントでログイン
+            </p>
           </div>
         </div>
       </div>

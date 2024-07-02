@@ -59,6 +59,7 @@ export default function ImageFile(props: PdfFileProps) {
               }
               setPageNumber((current) => current - 1)
             }}
+            className={pageNumber === 1 ? 'cursor-default' : 'hover:opacity-70'}
           >
             <ChevronLeft />
           </button>
@@ -70,6 +71,9 @@ export default function ImageFile(props: PdfFileProps) {
               }
               setPageNumber((current) => current + 1)
             }}
+            className={
+              pageNumber === numPages ? 'cursor-default' : 'hover:opacity-70'
+            }
           >
             <ChevronRight />
           </button>
